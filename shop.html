@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Alpha Mobile • Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
+    [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
+    * { box-sizing: border-box; }
+    body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; }
+    .container{max-width:1280px;margin:0 auto;padding:20px 16px}
+    
+    header{ position:sticky; top:16px; z-index:100; backdrop-filter:blur(20px); background:var(--card); border:1px solid var(--border); border-radius: 28px; margin: 12px auto 40px; padding:16px 32px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 10px 40px rgba(0,0,0,.05); }
+    .logo{display:flex;align-items:center;gap:16px;font-weight:900;font-size:22px;text-decoration:none;color:var(--text)}
+    .logo .mark{ width:50px;height:50px;border-radius:18px; background:linear-gradient(135deg,var(--pistachio), #A8D5A2); display:grid;place-items:center;color:white;font-size:24px; }
+    nav{display:flex;gap:4px;align-items:center}
+    nav a{ padding:10px 18px;border-radius:20px;color:var(--text); font-weight:600;text-decoration:none; transition:0.3s; }
+    nav a.active, nav a:hover{background:rgba(147,197,115,.15);color:var(--pistachio)}
+
+    /* CART & CONTROLS */
+    .controls { display:flex; gap: 12px; align-items: center; margin-left: 20px;}
+    .cart-btn { position: relative; background: var(--bg); border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
+    .cart-count { position: absolute; top: -5px; right: -5px; background: var(--pistachio); color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
+
+    /* FILTERS */
+    .filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+    .filter-btn { padding: 12px 24px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .filter-btn.active { background: var(--pistachio); color: white; border-color: var(--pistachio); }
+
+    /* GRID */
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:32px; padding-bottom: 80px; }
+    .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 32px; padding: 20px; display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; }
+    .product-card:hover { transform: translateY(-10px); }
+    .product-img { height: 250px; background: #f1f5f9; border-radius: 24px; display: grid; place-items: center; overflow: hidden; }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; }
+    .btn-buy { width: 100%; padding: 14px; background: var(--text); color: var(--bg); border: none; border-radius: 99px; font-weight: 700; cursor: pointer; }
+    .btn-buy:hover { background: var(--pistachio); color: white; }
+    
+    .loader { text-align: center; width: 100%; grid-column: 1 / -1; padding: 50px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo"><div class="mark">α</div><div>Alpha Mobile</div></a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="shop.html" class="active">Shop</a>
+        <a href="repairs.html">Repairs</a>
+        <a href="contact.html">Contact</a>
+        <div class="controls">
+          <div class="cart-btn" onclick="toggleCart()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <div class="cart-count">0</div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <h1 style="text-align:center; font-size:48px; font-weight:900;">Shop</h1>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" id="f-all">All</button>
+      <button class="filter-btn" id="f-phone">Phones</button>
+      <button class="filter-btn" id="f-audio">Audio</button>
+      <button class="filter-btn" id="f-cable">Cables</button>
+    </div>
+    
+    <div class="grid" id="shopGrid">
+      <div class="loader">Loading products...</div>
+    </div>
+  </div>
+
+  <script src="global.js"></script>
+  
+  <script type="module">
+    import { getProducts } from './db.js';
+
+    let allProducts = [];
+
+    async function initShop() {
+      try {
+        allProducts = await getProducts();
+        renderShop('all');
+      } catch (err) {
+        document.getElementById('shopGrid').innerHTML = `<div class="loader">Error loading shop.<br>Try refreshing.</div>`;
+        console.error(err);
+      }
+    }
+
+    function renderShop(type) {
+      const grid = document.getElementById('shopGrid');
+      grid.innerHTML = '';
+      
+      const items = type === 'all' ? allProducts : allProducts.filter(p => p.type === type);
+      
+      if(items.length === 0) {
+        grid.innerHTML = `<div class="loader">No items found in this category.</div>`;
+        return;
+      }
+
+      items.forEach(p => {
+        // Simple Add to Cart logic utilizing the global.js function
+        const card = `
+          <div class="product-card">
+            <div class="product-img"><img src="${p.image}" alt="${p.name}"></div>
+            <div style="flex:1">
+              <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase">${p.type}</span>
+                <span style="font-size:12px; font-weight:700; color:${p.stock < 5 ? 'orange' : 'green'}">${p.stock} left</span>
+              </div>
+              <h3 style="margin:5px 0">${p.name}</h3>
+              <div style="color:var(--pistachio); font-weight:700; font-size:18px">€${p.price}</div>
+            </div>
+            <button class="btn-buy" onclick="addToCart('${p.id}', ${p.price}, '${p.name}', '${p.image}')">Add to Cart</button>
+          </div>
+        `;
+        grid.innerHTML += card;
+      });
+    }
+
+    // Filter Events
+    document.getElementById('f-all').onclick = () => { setActive('f-all'); renderShop('all'); };
+    document.getElementById('f-phone').onclick = () => { setActive('f-phone'); renderShop('phone'); };
+    document.getElementById('f-audio').onclick = () => { setActive('f-audio'); renderShop('audio'); };
+    document.getElementById('f-cable').onclick = () => { setActive('f-cable'); renderShop('cable'); };
+
+    function setActive(id) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    
+    // Override global addToCart to handle database items dynamically
+    // We attach this to window so the HTML onclick can see it
+    window.addToCart = function(id, price, name, img) {
+        // Logic similar to global.js but accepts params directly
+        let cart = JSON.parse(localStorage.getItem('alphaCart')) || [];
+        cart.push({ id, name, price, img, desc: "" });
+        localStorage.setItem('alphaCart', JSON.stringify(cart));
+        
+        // Update UI if global.js is loaded
+        if(typeof updateCartUI === 'function') updateCartUI();
+        if(typeof updateNavCounts === 'function') updateNavCounts();
+        if(typeof toggleCart === 'function') {
+             const sidebar = document.getElementById('cartSidebar');
+             if(!sidebar.classList.contains('open')) toggleCart();
+        }
+    };
+
+    initShop();
+  </script>
+</body>
+</html>
