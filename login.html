@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Alpha Mobile • Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
+    [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
+    body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    
+    .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+    h1 { margin-top: 0; text-align: center; }
+    p { text-align: center; color: var(--muted); margin-bottom: 30px; }
+    
+    label { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: block; }
+    input { width: 100%; padding: 16px; margin-bottom: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; box-sizing: border-box; }
+    
+    .btn-login { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.2s; }
+    .btn-login:hover { transform: scale(1.02); }
+    
+    .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); text-decoration: none; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <h1>Details Required</h1>
+    <p>Please enter your details to complete the order.</p>
+
+    <label>Full Name</label>
+    <input type="text" id="u-name" placeholder="John Doe">
+
+    <label>Phone Number</label>
+    <input type="tel" id="u-phone" placeholder="+357 ...">
+
+    <label>City & Address</label>
+    <input type="text" id="u-address" placeholder="Nicosia, 123 Street">
+
+    <button class="btn-login" onclick="saveAndContinue()">Save & Continue</button>
+    <a href="shop.html" class="back-link">Cancel</a>
+  </div>
+
+  <script>
+    function saveAndContinue() {
+      const name = document.getElementById('u-name').value;
+      const phone = document.getElementById('u-phone').value;
+      const address = document.getElementById('u-address').value;
+
+      if(!name || !phone || !address) return alert("Please fill in all fields.");
+
+      const user = { name, phone, address };
+      localStorage.setItem('alphaUser', JSON.stringify(user));
+
+      // Go back to the shop to finish checkout
+      window.location.href = 'shop.html?checkout=true';
+    }
+  </script>
+</body>
+</html>

@@ -1,6 +1,5 @@
-/* global.js - Handles Cart & Navigation */
+/* global.js - Updated with Login Check */
 
-// 1. Inject Cart HTML into the page automatically
 document.addEventListener("DOMContentLoaded", () => {
   const cartHTML = `
     <div class="cart-sidebar" id="cartSidebar">
@@ -35,9 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.insertAdjacentHTML('beforeend', cartHTML);
   updateCartUI();
   updateNavCounts();
+
+  // If user just logged in and was redirected back here, open the cart automatically
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.get('checkout') === 'true') {
+    toggleCart();
+  }
 });
 
-// 2. Logic
 let cart = JSON.parse(localStorage.getItem('alphaCart')) || [];
 
 function toggleCart() {
@@ -92,16 +96,34 @@ function updateCartUI() {
   if(totalEl) totalEl.innerText = `€${total}`;
 }
 
+// --- NEW CHECKOUT LOGIC ---
 function checkout() {
   if(cart.length === 0) return alert("Cart is empty");
+
+  // 1. Check if user is logged in
+  const user = JSON.parse(localStorage.getItem('alphaUser'));
   
-  let msg = "Hello, I would like to order:\n";
+  // 2. If NOT logged in, force redirect to Login Page
+  if(!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // 3. If Logged in, Proceed to WhatsApp
+  let msg = `New Order from *${user.name}*\n`;
+  msg += `Phone: ${user.phone}\n`;
+  msg += `Address: ${user.address}\n\n`;
+  msg += `*Order Details:*\n`;
+  
   let total = 0;
   cart.forEach(item => {
     msg += `- ${item.name} (€${item.price})\n`;
     total += item.price;
   });
-  msg += `\nTotal: €${total}`;
+  msg += `\n*Total: €${total}*`;
   
   window.open(`https://wa.me/35796123456?text=${encodeURIComponent(msg)}`, '_blank');
+  
+  // Optional: Clear cart after order? 
+  // cart = []; saveCart(); updateCartUI(); toggleCart();
 }
