@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Alpha Mobile • Sign In</title>
+  <title>Alpha Mobile • Register</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); --error: #ef4444; --success: #22c55e; }
@@ -54,8 +54,8 @@
   <div class="login-card">
     
     <div id="step-1" class="step-screen active">
-      <h1>Sign In</h1>
-      <p>Enter your phone and email to continue.</p>
+      <h1>Create Account</h1>
+      <p>Join Alpha Mobile today.</p>
 
       <div class="form-group">
         <label>Phone Number (Cyprus Only)</label>
@@ -69,10 +69,10 @@
         <div class="error-text" id="err-email">Invalid email (Gmail, Outlook, Yahoo only).</div>
       </div>
 
-      <button class="btn-action" onclick="sendOTP()">Send Verification Code</button>
+      <button class="btn-action" onclick="sendOTP()">Verify & Register</button>
       
       <div class="switch-link">
-        Don't have an account? <a href="register.html">Register</a>
+        Already have an account? <a href="login.html">Sign In</a>
       </div>
       <a href="shop.html" class="back-link">Cancel</a>
     </div>
@@ -87,7 +87,7 @@
         <div class="error-text" id="err-otp">Incorrect code. Please try again.</div>
       </div>
 
-      <button class="btn-action" onclick="verifyOTP()">Verify & Login</button>
+      <button class="btn-action" onclick="verifyOTP()">Confirm Registration</button>
       <div class="back-link" onclick="goBack()">Wrong email? Go back</div>
     </div>
 
@@ -163,7 +163,7 @@
       const inputOTP = document.getElementById('u-otp').value;
       if (parseInt(inputOTP) === generatedOTP) {
         const user = {
-          name: "Guest",
+          name: "New Member",
           email: iEmail.value,
           phone: iPhone.value,
           address: "Not Provided"

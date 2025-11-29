@@ -149,10 +149,10 @@ window.updateProfileMenu = function() {
       <div class="profile-option" onclick="logoutUser()" style="color:#ef4444">Logout</div>
     `;
   } else {
-    // FIX: Distinct links for Login vs Register
+    // FIX: Directly link to separate pages
     menu.innerHTML = `
-      <div class="profile-option" onclick="window.location.href='login.html?mode=login'">Login</div>
-      <div class="profile-option" onclick="window.location.href='login.html?mode=register'">Register</div>
+      <div class="profile-option" onclick="window.location.href='login.html'">Login</div>
+      <div class="profile-option" onclick="window.location.href='register.html'">Register</div>
     `;
   }
 }
