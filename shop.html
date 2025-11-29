@@ -49,7 +49,7 @@
     .filter-btn.active { background: var(--pistachio); color: white; border-color: var(--pistachio); }
     .loader { text-align: center; width: 100%; grid-column: 1 / -1; padding: 50px; color: var(--muted); }
 
-    /* Intro */
+    /* INTRO ANIMATION CSS */
     .intro-overlay { position: fixed; inset: 0; z-index: 99990; background: #050505; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.8s var(--ease); }
     .intro-logo { font-size: 80px; font-weight: 900; color: transparent; background: linear-gradient(135deg, var(--pistachio), #A8D5A2); -webkit-background-clip: text; background-clip: text; opacity: 0; transform: scale(0.8); animation: logoIn 1s var(--ease) forwards 0.2s; }
     .intro-line { width: 0; height: 2px; background: var(--pistachio); margin-top: 20px; animation: lineExpand 0.8s var(--ease) forwards 1s; }
@@ -61,6 +61,7 @@
   </style>
 </head>
 <body>
+
   <div class="intro-overlay" id="intro"><div class="intro-logo">α</div><div class="intro-line"></div></div>
 
   <div class="container">
@@ -82,7 +83,6 @@
             <option value="CAD">$ CAD</option>
             <option value="CHF">Fr CHF</option>
           </select>
-          
           <div class="lang-dropdown">
             <button class="lang-btn" onclick="toggleLangMenu()">
               <span id="current-code">US</span> <span style="font-size:12px; color:var(--muted)" id="current-name">English</span>
@@ -98,7 +98,6 @@
               <div class="lang-option" onclick="changeLang('tr', 'TR', 'Türkçe')">Türkçe</div>
             </div>
           </div>
-
           <div class="theme-toggle" onclick="toggleTheme()">
             <svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m13.44 13.44l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m13.44-13.44l1.42-1.42"/></svg>
             <svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
