@@ -144,12 +144,11 @@ window.updateProfileMenu = function() {
   
   if(user) {
     menu.innerHTML = `
-      <div style="padding:10px; font-weight:600; color:var(--text); border-bottom:1px solid var(--border); margin-bottom:5px;">Hi, Guest</div>
+      <div style="padding:10px; font-weight:600; color:var(--text); border-bottom:1px solid var(--border); margin-bottom:5px;">Hi, ${user.name.split(' ')[0]}</div>
       <div class="profile-option" onclick="window.location.href='shop.html'">My Orders</div>
       <div class="profile-option" onclick="logoutUser()" style="color:#ef4444">Logout</div>
     `;
   } else {
-    // FIX: DIRECT LINKS TO SEPARATE PAGES
     menu.innerHTML = `
       <div class="profile-option" onclick="window.location.href='login.html'">Login</div>
       <div class="profile-option" onclick="window.location.href='register.html'">Register</div>
@@ -322,7 +321,12 @@ window.checkout = function() {
   if(!user) { window.location.href = 'login.html'; return; }
   
   const curr = currencies[currentCurrency];
-  let msg = `New Order from *${user.name}*\nPhone: ${user.phone}\nAddress: ${user.address}\n\n`;
+  
+  // --- UPDATED WHATSAPP MESSAGE ---
+  let msg = `New Order from *${user.name}*\n`;
+  msg += `Phone: ${user.phone}\n`;
+  msg += `Address: ${user.address}, ${user.city}\n\n`;
+  
   let total = 0;
   cart.forEach(item => { 
     total += item.price;

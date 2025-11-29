@@ -9,31 +9,27 @@
     :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); --error: #ef4444; --success: #22c55e; }
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     
-    body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; transition:0.3s; }
+    body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; transition:0.3s; padding: 20px 0; }
     
-    .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+    .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
     
     h1 { margin-top: 0; text-align: center; }
     p { text-align: center; color: var(--muted); margin-bottom: 30px; font-size: 14px; }
     
-    .form-group { margin-bottom: 18px; position: relative; }
+    .form-group { margin-bottom: 16px; }
     label { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block; color: var(--text); }
     
-    input { 
+    input, select { 
       width: 100%; padding: 14px; border-radius: 12px; 
       border: 1px solid var(--border); 
       background: var(--bg); color: var(--text); 
       font-family: inherit; box-sizing: border-box; 
       font-size: 14px; outline: none; transition: 0.2s;
     }
+    input:focus, select:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
     
-    input.invalid { border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
-    input.valid { border-color: var(--success); }
-    input:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
+    .row { display: flex; gap: 10px; }
     
-    .error-text { color: var(--error); font-size: 11px; margin-top: 5px; font-weight: 600; display: none; }
-    .error-text.show { display: block; animation: slideDown 0.2s ease; }
-
     .btn-action { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.2s; margin-top: 10px; }
     .btn-action:hover { transform: scale(1.02); opacity: 0.9; }
     
@@ -41,161 +37,127 @@
     .switch-link { display: block; text-align: center; margin-top: 15px; font-size: 13px; }
     .switch-link a { color: var(--pistachio); font-weight: 700; text-decoration: none; }
 
-    .step-screen { display: none; animation: fadeIn 0.3s ease; }
-    .step-screen.active { display: block; }
-    .otp-input { letter-spacing: 8px; font-size: 24px; text-align: center; font-weight: 700; }
-    
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .error-msg { color: var(--error); font-size: 12px; margin-top: 5px; text-align: center; display: none; font-weight: 600; }
   </style>
 </head>
 <body>
 
   <div class="login-card">
+    <h1>Create Account</h1>
+    <p>Please fill in your delivery details.</p>
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="reg-name" placeholder="John Doe">
+    </div>
+
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" id="reg-phone" value="+357 " maxlength="13">
+    </div>
+
+    <div class="row">
+      <div class="form-group" style="flex:1">
+        <label>City</label>
+        <select id="reg-city">
+          <option value="" disabled selected>Select</option>
+          <option value="Nicosia">Nicosia</option>
+          <option value="Limassol">Limassol</option>
+          <option value="Larnaca">Larnaca</option>
+          <option value="Paphos">Paphos</option>
+          <option value="Famagusta">Famagusta</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1.5">
+        <label>Address</label>
+        <input type="text" id="reg-addr" placeholder="Street, Apt #">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="reg-email" placeholder="john@example.com">
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="reg-pass" placeholder="••••••••">
+    </div>
+
+    <div id="error-box" class="error-msg"></div>
+
+    <button class="btn-action" onclick="registerUser()">Sign Up</button>
     
-    <div id="step-1" class="step-screen active">
-      <h1>Create Account</h1>
-      <p>Join Alpha Mobile today.</p>
-
-      <div class="form-group">
-        <label>Phone Number (Cyprus Only)</label>
-        <input type="tel" id="u-phone" value="+357 " maxlength="13">
-        <div class="error-text" id="err-phone">Must start with +357 and have 8 digits.</div>
-      </div>
-
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="u-email" placeholder="john@gmail.com">
-        <div class="error-text" id="err-email">Invalid email (Gmail, Outlook, Yahoo only).</div>
-      </div>
-
-      <button class="btn-action" onclick="sendOTP()">Verify & Register</button>
-      
-      <div class="switch-link">
-        Already have an account? <a href="login.html">Sign In</a>
-      </div>
-      <a href="shop.html" class="back-link">Cancel</a>
+    <div class="switch-link">
+      Already have an account? <a href="login.html">Sign In</a>
     </div>
-
-    <div id="step-2" class="step-screen">
-      <h1>Verify Email</h1>
-      <p>We sent a code to <span id="display-email" style="color:var(--pistachio); font-weight:700"></span></p>
-      
-      <div class="form-group">
-        <label style="text-align:center">Enter 4-Digit OTP</label>
-        <input type="text" id="u-otp" class="otp-input" maxlength="4" placeholder="0000">
-        <div class="error-text" id="err-otp">Incorrect code. Please try again.</div>
-      </div>
-
-      <button class="btn-action" onclick="verifyOTP()">Confirm Registration</button>
-      <div class="back-link" onclick="goBack()">Wrong email? Go back</div>
-    </div>
-
+    <a href="shop.html" class="back-link">Cancel</a>
   </div>
 
   <script>
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    let generatedOTP = null;
-    const iEmail = document.getElementById('u-email');
-    const iPhone = document.getElementById('u-phone');
-
-    // --- LOCK THE +357 PREFIX ---
+    // --- PHONE LOCK LOGIC ---
+    const phoneInput = document.getElementById('reg-phone');
     const PREFIX = "+357 ";
     
-    // 1. Block Backspace/Delete on prefix
-    iPhone.addEventListener('keydown', function(e) {
-      if ((this.selectionStart < PREFIX.length) && (e.key === 'Backspace' || e.key === 'Delete')) {
-        e.preventDefault(); 
-      }
-      // Also prevent moving cursor before prefix
-      if (this.selectionStart < PREFIX.length && e.key === 'ArrowLeft') {
-         e.preventDefault();
-      }
+    phoneInput.addEventListener('keydown', function(e) {
+      if ((this.selectionStart < PREFIX.length) && (e.key === 'Backspace' || e.key === 'Delete')) e.preventDefault();
+      if (this.selectionStart <= PREFIX.length && e.key === 'ArrowLeft') { e.preventDefault(); this.setSelectionRange(PREFIX.length, PREFIX.length); }
+    });
+    phoneInput.addEventListener('click', function() { if (this.selectionStart < PREFIX.length) this.setSelectionRange(PREFIX.length, PREFIX.length); });
+    phoneInput.addEventListener('input', function(e) {
+      if (!this.value.startsWith(PREFIX)) this.value = PREFIX + this.value.replace(PREFIX.trim(), '').replace('+357', '').replace(/\D/g,'').trim();
     });
 
-    // 2. Force cursor to end of prefix if clicked inside
-    iPhone.addEventListener('click', function() {
-      if (this.selectionStart < PREFIX.length) {
-        this.setSelectionRange(PREFIX.length, PREFIX.length);
+    // --- REGISTRATION LOGIC ---
+    function registerUser() {
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const city = document.getElementById('reg-city').value;
+      const addr = document.getElementById('reg-addr').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const pass = document.getElementById('reg-pass').value;
+
+      // 1. Validation
+      if(!name || !city || !addr || !email || !pass || phone.length < 12) {
+        showError("Please fill in all fields correctly.");
+        return;
       }
-    });
-
-    // 3. Strict Input Enforcement
-    iPhone.addEventListener('input', function(e) {
-      if (!this.value.startsWith(PREFIX)) {
-        // If user managed to mess it up (e.g. select all + delete), restore it
-        this.value = PREFIX + this.value.replace(PREFIX.trim(), '').replace('+357', '').replace(/\D/g,'').trim();
-      }
-
-      let val = this.value;
-      const err = document.getElementById('err-phone');
-      const numbersOnly = val.replace(/[^0-9]/g, '');
-      
-      if(numbersOnly.length === 11) { // 357 + 8 digits
-        this.classList.remove('invalid');
-        this.classList.add('valid');
-        err.classList.remove('show');
-      } else {
-        this.classList.add('invalid');
-        this.classList.remove('valid');
-        err.innerText = "Number incomplete (8 digits required).";
-        err.classList.add('show');
-      }
-    });
-
-    iEmail.addEventListener('input', function() {
-      const val = this.value.toLowerCase().trim();
-      const validDomains = /@(gmail|yahoo|outlook|hotmail|icloud|live|msn)\.(com|co\.uk|gr|cy)$/;
-      const err = document.getElementById('err-email');
-
-      if(val.match(validDomains)) {
-        this.classList.remove('invalid');
-        this.classList.add('valid');
-        err.classList.remove('show');
-      } else {
-        this.classList.add('invalid');
-        this.classList.remove('valid');
-        if(val.length > 5) err.classList.add('show'); 
-      }
-    });
-
-    function sendOTP() {
-      iPhone.dispatchEvent(new Event('input'));
-      iEmail.dispatchEvent(new Event('input'));
-
-      if(iPhone.classList.contains('invalid') || iEmail.classList.contains('invalid')) {
+      if(pass.length < 6) {
+        showError("Password must be at least 6 characters.");
         return;
       }
 
-      generatedOTP = Math.floor(1000 + Math.random() * 9000); 
-      alert(`[DEMO] Your OTP Code is: ${generatedOTP}`);
-      
-      document.getElementById('display-email').innerText = iEmail.value;
-      document.getElementById('step-1').classList.remove('active');
-      document.getElementById('step-2').classList.add('active');
-    }
-
-    function verifyOTP() {
-      const inputOTP = document.getElementById('u-otp').value;
-      if (parseInt(inputOTP) === generatedOTP) {
-        const user = {
-          name: "New Member",
-          email: iEmail.value,
-          phone: iPhone.value,
-          address: "Not Provided"
-        };
-        localStorage.setItem('alphaUser', JSON.stringify(user));
-        window.location.href = 'shop.html';
-      } else {
-        document.getElementById('err-otp').classList.add('show');
+      // 2. Check Database
+      let users = JSON.parse(localStorage.getItem('alpha_db_users')) || [];
+      if(users.find(u => u.email === email)) {
+        showError("Email already registered.");
+        return;
       }
+
+      // 3. Save User
+      const newUser = {
+        name: name,
+        phone: phone,
+        city: city,
+        address: addr,
+        email: email,
+        password: pass
+      };
+      
+      users.push(newUser);
+      localStorage.setItem('alpha_db_users', JSON.stringify(users));
+
+      alert("Account created successfully!");
+      window.location.href = 'login.html';
     }
 
-    function goBack() {
-      document.getElementById('step-2').classList.remove('active');
-      document.getElementById('step-1').classList.add('active');
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      box.innerText = msg;
+      box.style.display = 'block';
     }
   </script>
 </body>

@@ -11,12 +11,12 @@
     
     body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; transition:0.3s; }
     
-    .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+    .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
     
     h1 { margin-top: 0; text-align: center; }
     p { text-align: center; color: var(--muted); margin-bottom: 30px; font-size: 14px; }
     
-    .form-group { margin-bottom: 18px; position: relative; }
+    .form-group { margin-bottom: 18px; }
     label { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block; color: var(--text); }
     
     input { 
@@ -26,14 +26,8 @@
       font-family: inherit; box-sizing: border-box; 
       font-size: 14px; outline: none; transition: 0.2s;
     }
-    
-    input.invalid { border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
-    input.valid { border-color: var(--success); }
     input:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
     
-    .error-text { color: var(--error); font-size: 11px; margin-top: 5px; font-weight: 600; display: none; }
-    .error-text.show { display: block; animation: slideDown 0.2s ease; }
-
     .btn-action { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.2s; margin-top: 10px; }
     .btn-action:hover { transform: scale(1.02); opacity: 0.9; }
     
@@ -41,156 +35,63 @@
     .switch-link { display: block; text-align: center; margin-top: 15px; font-size: 13px; }
     .switch-link a { color: var(--pistachio); font-weight: 700; text-decoration: none; }
 
-    .step-screen { display: none; animation: fadeIn 0.3s ease; }
-    .step-screen.active { display: block; }
-    .otp-input { letter-spacing: 8px; font-size: 24px; text-align: center; font-weight: 700; }
-    
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .error-msg { color: var(--error); font-size: 12px; margin-top: 5px; text-align: center; display: none; font-weight: 600; }
   </style>
 </head>
 <body>
 
   <div class="login-card">
+    <h1>Welcome Back</h1>
+    <p>Sign in to access your saved details.</p>
+
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="login-email" placeholder="john@example.com">
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="••••••••">
+    </div>
+
+    <div id="error-box" class="error-msg"></div>
+
+    <button class="btn-action" onclick="loginUser()">Sign In</button>
     
-    <div id="step-1" class="step-screen active">
-      <h1>Sign In</h1>
-      <p>Enter your phone and email to continue.</p>
-
-      <div class="form-group">
-        <label>Phone Number (Cyprus Only)</label>
-        <input type="tel" id="u-phone" value="+357 " maxlength="13">
-        <div class="error-text" id="err-phone">Must start with +357 and have 8 digits.</div>
-      </div>
-
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="u-email" placeholder="john@gmail.com">
-        <div class="error-text" id="err-email">Invalid email (Gmail, Outlook, Yahoo only).</div>
-      </div>
-
-      <button class="btn-action" onclick="sendOTP()">Send Verification Code</button>
-      
-      <div class="switch-link">
-        Don't have an account? <a href="register.html">Register</a>
-      </div>
-      <a href="shop.html" class="back-link">Cancel</a>
+    <div class="switch-link">
+      Don't have an account? <a href="register.html">Register</a>
     </div>
-
-    <div id="step-2" class="step-screen">
-      <h1>Verify Email</h1>
-      <p>We sent a code to <span id="display-email" style="color:var(--pistachio); font-weight:700"></span></p>
-      
-      <div class="form-group">
-        <label style="text-align:center">Enter 4-Digit OTP</label>
-        <input type="text" id="u-otp" class="otp-input" maxlength="4" placeholder="0000">
-        <div class="error-text" id="err-otp">Incorrect code. Please try again.</div>
-      </div>
-
-      <button class="btn-action" onclick="verifyOTP()">Verify & Login</button>
-      <div class="back-link" onclick="goBack()">Wrong email? Go back</div>
-    </div>
-
+    <a href="shop.html" class="back-link">Cancel</a>
   </div>
 
   <script>
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    let generatedOTP = null;
-    const iEmail = document.getElementById('u-email');
-    const iPhone = document.getElementById('u-phone');
+    function loginUser() {
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-pass').value;
 
-    // --- LOCK THE +357 PREFIX ---
-    const PREFIX = "+357 ";
-    
-    iPhone.addEventListener('keydown', function(e) {
-      if ((this.selectionStart < PREFIX.length) && (e.key === 'Backspace' || e.key === 'Delete')) {
-        e.preventDefault(); 
-      }
-      if (this.selectionStart < PREFIX.length && e.key === 'ArrowLeft') {
-         e.preventDefault();
-      }
-    });
-
-    iPhone.addEventListener('click', function() {
-      if (this.selectionStart < PREFIX.length) {
-        this.setSelectionRange(PREFIX.length, PREFIX.length);
-      }
-    });
-
-    iPhone.addEventListener('input', function(e) {
-      if (!this.value.startsWith(PREFIX)) {
-        this.value = PREFIX + this.value.replace(PREFIX.trim(), '').replace('+357', '').replace(/\D/g,'').trim();
-      }
-
-      let val = this.value;
-      const err = document.getElementById('err-phone');
-      const numbersOnly = val.replace(/[^0-9]/g, '');
-      
-      if(numbersOnly.length === 11) {
-        this.classList.remove('invalid');
-        this.classList.add('valid');
-        err.classList.remove('show');
-      } else {
-        this.classList.add('invalid');
-        this.classList.remove('valid');
-        err.innerText = "Number incomplete (8 digits required).";
-        err.classList.add('show');
-      }
-    });
-
-    iEmail.addEventListener('input', function() {
-      const val = this.value.toLowerCase().trim();
-      const validDomains = /@(gmail|yahoo|outlook|hotmail|icloud|live|msn)\.(com|co\.uk|gr|cy)$/;
-      const err = document.getElementById('err-email');
-
-      if(val.match(validDomains)) {
-        this.classList.remove('invalid');
-        this.classList.add('valid');
-        err.classList.remove('show');
-      } else {
-        this.classList.add('invalid');
-        this.classList.remove('valid');
-        if(val.length > 5) err.classList.add('show'); 
-      }
-    });
-
-    function sendOTP() {
-      iPhone.dispatchEvent(new Event('input'));
-      iEmail.dispatchEvent(new Event('input'));
-
-      if(iPhone.classList.contains('invalid') || iEmail.classList.contains('invalid')) {
+      if(!email || !pass) {
+        showError("Please enter email and password.");
         return;
       }
 
-      generatedOTP = Math.floor(1000 + Math.random() * 9000); 
-      alert(`[DEMO] Your OTP Code is: ${generatedOTP}`);
-      
-      document.getElementById('display-email').innerText = iEmail.value;
-      document.getElementById('step-1').classList.remove('active');
-      document.getElementById('step-2').classList.add('active');
-    }
+      let users = JSON.parse(localStorage.getItem('alpha_db_users')) || [];
+      const user = users.find(u => u.email === email && u.password === pass);
 
-    function verifyOTP() {
-      const inputOTP = document.getElementById('u-otp').value;
-      if (parseInt(inputOTP) === generatedOTP) {
-        const user = {
-          name: "Guest",
-          email: iEmail.value,
-          phone: iPhone.value,
-          address: "Not Provided"
-        };
+      if(user) {
         localStorage.setItem('alphaUser', JSON.stringify(user));
         window.location.href = 'shop.html';
       } else {
-        document.getElementById('err-otp').classList.add('show');
+        showError("Invalid email or password.");
       }
     }
 
-    function goBack() {
-      document.getElementById('step-2').classList.remove('active');
-      document.getElementById('step-1').classList.add('active');
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      box.innerText = msg;
+      box.style.display = 'block';
     }
   </script>
 </body>
