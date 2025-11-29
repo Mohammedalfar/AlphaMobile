@@ -5,6 +5,7 @@
   <title>Alpha Admin • Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
+    /* Nthn's Admin Styles */
     :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #93C572; --border: #334155; }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px; display:flex; justify-content:center;}
     
@@ -49,9 +50,6 @@
       <label>Photo</label>
       <input type="file" id="p-file" accept="image/*">
       
-      <label>Description</label> 
-      <input type="text" id="p-desc" placeholder="Details...">
-      
       <button id="addBtn">Upload & Save</button>
     </div>
 
@@ -67,7 +65,7 @@
   <script type="module">
     import { getProducts, addProductToDB, deleteProductFromDB, uploadImage } from './db.js';
 
-    // 1. Load Data
+    // Load Data
     async function load() {
       const list = document.getElementById('list-area');
       list.innerHTML = "Fetching...";
@@ -102,7 +100,7 @@
       }
     }
 
-    // 2. Upload & Add
+    // Upload & Add
     document.getElementById('addBtn').addEventListener('click', async () => {
       const btn = document.getElementById('addBtn');
       const fileInput = document.getElementById('p-file');
@@ -130,8 +128,7 @@
           type: document.getElementById('p-type').value,
           price: Number(price),
           stock: Number(document.getElementById('p-stock').value),
-          image: imageUrl, 
-          desc: document.getElementById('p-desc').value
+          image: imageUrl
         };
 
         await addProductToDB(newItem);
@@ -141,7 +138,6 @@
         // Reset Form
         document.getElementById('p-name').value = "";
         document.getElementById('p-price').value = "";
-        document.getElementById('p-desc').value = "";
         fileInput.value = ""; 
         load(); 
 

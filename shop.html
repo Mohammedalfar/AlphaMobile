@@ -6,14 +6,14 @@
   <title>Alpha Mobile • Shop</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    /* VARIABLES */
-    :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); --ease: cubic-bezier(0.16, 1, 0.3, 1); }
+    /* My CSS Variables */
+    :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     * { box-sizing: border-box; }
     body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; }
     .container{max-width:1280px;margin:0 auto;padding:20px 16px}
     
-    /* HEADER */
+    /* Header */
     header{ position:sticky; top:16px; z-index:100; backdrop-filter:blur(20px); background:var(--card); border:1px solid var(--border); border-radius: 28px; margin: 12px auto 40px; padding:16px 32px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 10px 40px rgba(0,0,0,.05); }
     .logo{display:flex;align-items:center;gap:16px;font-weight:900;font-size:22px;text-decoration:none;color:var(--text)}
     .logo .mark{ width:50px;height:50px;border-radius:18px; background:linear-gradient(135deg,var(--pistachio), #A8D5A2); display:grid;place-items:center;color:white;font-size:24px; }
@@ -21,14 +21,15 @@
     nav a{ padding:10px 18px;border-radius:20px;color:var(--text); font-weight:600;text-decoration:none; transition:0.3s; }
     nav a.active, nav a:hover{background:rgba(147,197,115,.15);color:var(--pistachio)}
 
-    /* HEADER CONTROLS */
+    /* Controls */
     .controls { display:flex; gap: 12px; align-items: center; margin-left: 20px;}
     .cart-btn { position: relative; background: var(--bg); border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
     .cart-count { position: absolute; top: -5px; right: -5px; background: var(--pistachio); color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
+    
     .theme-toggle{ width:42px;height:42px;border-radius:50%;background:var(--bg); border:1px solid var(--border); display:grid;place-items:center; cursor: pointer;}
     [data-theme="dark"] .sun { display: none; } [data-theme="light"] .moon { display: none; }
 
-    /* LANG & CURRENCY DROPDOWNS */
+    /* Lang Menu */
     .lang-dropdown { position: relative; }
     .lang-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-weight: 600; font-family: inherit; transition: all 0.2s; cursor: pointer;}
     .lang-menu { position: absolute; top: 120%; right: 0; width: 180px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: none; flex-direction: column; gap: 4px; z-index: 200; max-height: 300px; overflow-y: auto; }
@@ -37,58 +38,47 @@
     .lang-option:hover { background: rgba(147,197,115,.1); }
     html[dir="rtl"] .lang-menu { right: auto; left: 0; }
 
-    /* FILTERS */
-    .filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
-    .filter-btn { padding: 12px 24px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-weight: 600; transition: 0.3s; }
-    .filter-btn.active { background: var(--pistachio); color: white; border-color: var(--pistachio); }
-
-    /* PRODUCT GRID */
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; padding-bottom: 80px; }
-    .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; height: 100%; }
+    /* Shop Grid */
+    .grid { 
+      display: grid; 
+      /* Clean layout - no stretching */
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+      gap: 24px; 
+      padding-bottom: 80px; 
+    }
+    
+    .product-card { 
+      background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; 
+      display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; 
+      height: 100%;
+      max-width: 400px; 
+      margin: 0 auto; 
+      width: 100%;
+    }
     .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    
     .product-img { height: 280px; background: #f8fafc; border-radius: 16px; display: grid; place-items: center; overflow: hidden; padding: 20px; }
     .product-img img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s; }
     .product-card:hover .product-img img { transform: scale(1.05); }
+    
     .btn-buy { width: 100%; padding: 14px; background: var(--text); color: var(--bg); border: none; border-radius: 99px; font-weight: 700; cursor: pointer; margin-top: auto; }
     .btn-buy:hover { background: var(--pistachio); color: white; }
+    
+    .filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+    .filter-btn { padding: 12px 24px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .filter-btn.active { background: var(--pistachio); color: white; border-color: var(--pistachio); }
     .loader { text-align: center; width: 100%; grid-column: 1 / -1; padding: 50px; color: var(--muted); }
 
-    /* --- INTRO ANIMATION (Fixed) --- */
-    .intro-overlay { 
-      position: fixed; inset: 0; z-index: 1000000; 
-      background: #050505; 
-      display: flex; flex-direction: column; align-items: center; justify-content: center; 
-      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
-    }
-    .intro-logo { 
-      font-size: 80px; font-weight: 900; 
-      color: transparent; 
-      background: linear-gradient(135deg, var(--pistachio), #A8D5A2); 
-      -webkit-background-clip: text; background-clip: text; 
-      opacity: 0; transform: scale(0.8); 
-      animation: logoIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; 
-    }
-    .intro-line { 
-      width: 0; height: 2px; 
-      background: var(--pistachio); margin-top: 20px; 
-      animation: lineExpand 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 1s; 
-    }
-    
-    .intro-overlay.finish { transform: translateY(-100%); }
-    
+    /* Intro */
+    .intro-overlay { position: fixed; inset: 0; z-index: 99990; background: #050505; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.8s var(--ease); }
+    .intro-logo { font-size: 80px; font-weight: 900; color: transparent; background: linear-gradient(135deg, var(--pistachio), #A8D5A2); -webkit-background-clip: text; background-clip: text; opacity: 0; transform: scale(0.8); animation: logoIn 1s var(--ease) forwards 0.2s; }
+    .intro-line { width: 0; height: 2px; background: var(--pistachio); margin-top: 20px; animation: lineExpand 0.8s var(--ease) forwards 1s; }
+    .intro-overlay.finish { transform: translateY(-100%); pointer-events: none; }
     @keyframes logoIn { to { opacity: 1; transform: scale(1); } }
     @keyframes lineExpand { to { width: 120px; } }
     
-    /* MOBILE RESPONSIVE */
-    @media(max-width:900px){ 
-      header{flex-direction:column; gap:20px;} 
-      .controls {margin:0; flex-wrap:wrap; justify-content:center;} 
-      .intro-logo { font-size: 60px; }
-      .grid { grid-template-columns: 1fr 1fr; gap: 10px; } /* 2 Columns on mobile */
-    }
-    @media(max-width:500px){ 
-      .grid { grid-template-columns: 1fr; } /* 1 Column on very small phones */
-    }
+    @media(max-width:900px){ header{flex-direction:column; gap:20px;} .controls {margin:0; flex-wrap:wrap; justify-content:center;} }
+    .control-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none; margin: 0; height: 36px; font-family: 'Inter', sans-serif; }
   </style>
 </head>
 <body>
@@ -117,7 +107,6 @@
             <option value="CAD">$ CAD</option>
             <option value="CHF">Fr CHF</option>
           </select>
-          
           <div class="lang-dropdown">
             <button class="lang-btn" onclick="toggleLangMenu()">
               <span id="current-code">US</span> <span style="font-size:12px; color:var(--muted)" id="current-name">English</span>
@@ -133,7 +122,6 @@
               <div class="lang-option" onclick="changeLang('tr', 'TR', 'Türkçe')">Türkçe</div>
             </div>
           </div>
-
           <div class="theme-toggle" onclick="toggleTheme()">
             <svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m13.44 13.44l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m13.44-13.44l1.42-1.42"/></svg>
             <svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -163,11 +151,7 @@
   <script src="global.js"></script>
   
   <script>
-    window.addEventListener('load', () => { 
-      setTimeout(() => { 
-        document.getElementById('intro').classList.add('finish'); 
-      }, 1500); 
-    });
+    setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500);
   </script>
 
   <script type="module">
@@ -182,11 +166,17 @@
         console.error(err);
       }
     }
+    
     function renderShop(type) {
       const grid = document.getElementById('shopGrid');
       grid.innerHTML = '';
       const items = type === 'all' ? allProducts : allProducts.filter(p => p.type === type);
-      if(items.length === 0) { grid.innerHTML = `<div class="loader">No items found in this category.</div>`; return; }
+      
+      if(items.length === 0) { 
+        grid.innerHTML = `<div class="loader">No items found.</div>`; 
+        return; 
+      }
+      
       items.forEach(p => {
         const card = `
           <div class="product-card">
@@ -210,11 +200,16 @@
       const lang = localStorage.getItem('lang') || 'en';
       if(typeof applyLanguage === 'function') applyLanguage(lang);
     }
+    
     document.getElementById('f-all').onclick = () => { setActive('f-all'); renderShop('all'); };
     document.getElementById('f-phone').onclick = () => { setActive('f-phone'); renderShop('phone'); };
     document.getElementById('f-audio').onclick = () => { setActive('f-audio'); renderShop('audio'); };
     document.getElementById('f-cable').onclick = () => { setActive('f-cable'); renderShop('cable'); };
-    function setActive(id) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    
+    function setActive(id) { 
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); 
+      document.getElementById(id).classList.add('active'); 
+    }
     
     window.addToCart = function(id, price, name, img) {
         let cart = JSON.parse(localStorage.getItem('alphaCart')) || [];
@@ -222,8 +217,12 @@
         localStorage.setItem('alphaCart', JSON.stringify(cart));
         if(typeof updateCartUI === 'function') updateCartUI();
         if(typeof updateNavCounts === 'function') updateNavCounts();
-        if(typeof toggleCart === 'function') { const sidebar = document.getElementById('cartSidebar'); if(!sidebar.classList.contains('open')) toggleCart(); }
+        if(typeof toggleCart === 'function') { 
+          const sidebar = document.getElementById('cartSidebar'); 
+          if(!sidebar.classList.contains('open')) toggleCart(); 
+        }
     };
+    
     initShop();
   </script>
 </body>
