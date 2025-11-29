@@ -10,7 +10,6 @@
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; }
     
-    /* DARK MODE FIX */
     input, select, textarea, button { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
     
     .container{max-width:1280px;margin:0 auto;padding:20px 16px}
@@ -26,7 +25,6 @@
     .cart-btn, .profile-btn { position: relative; background: var(--bg); border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--text); }
     .cart-count { position: absolute; top: -5px; right: -5px; background: var(--pistachio); color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
     
-    /* Profile Dropdown */
     .profile-btn { position: relative; }
     .profile-menu { position: absolute; top: 120%; right: 0; width: 160px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: none; flex-direction: column; gap: 4px; z-index: 200; }
     .profile-menu.open { display: flex; animation: fadeIn 0.2s ease; }
@@ -51,7 +49,10 @@
     
     input, textarea { width: 100%; padding: 16px; margin-bottom: 20px; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; }
     button { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; }
-    .map { height: 250px; background: #eee; border-radius: 24px; display: grid; place-items: center; color: #888; border: 1px solid var(--border); margin-top: 20px; }
+    
+    /* UPDATED MAP STYLE */
+    .map { height: 250px; background: #eee; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); margin-top: 20px; }
+    iframe { width: 100%; height: 100%; border: 0; }
 
     .intro-overlay { position: fixed; inset: 0; z-index: 99990; background: #050505; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.8s var(--ease); }
     .intro-logo { font-size: 80px; font-weight: 900; color: transparent; background: linear-gradient(135deg, var(--pistachio), #A8D5A2); -webkit-background-clip: text; background-clip: text; opacity: 0; transform: scale(0.8); animation: logoIn 1s var(--ease) forwards 0.2s; }
@@ -119,12 +120,24 @@
     <div class="wrapper">
       <div class="info">
         <h1 style="font-size:48px; margin:0 0 20px 0;" id="page-title">Visit Us</h1>
-        <p style="font-size:18px; color:var(--muted)">123 Makariou Avenue<br>Nicosia, Cyprus 1056</p>
+        
+        <p style="font-size:18px; color:var(--muted)">
+          Leof. Omonoias 46B<br>
+          Limassol 3052, Cyprus
+        </p>
         <br>
-        <p><strong>Tel:</strong> +357 96 123 456</p>
-        <p><strong>Email:</strong> info@alphamobile.com.cy</p>
-        <div class="map">Google Map Placeholder</div>
+        <p><strong>Tel:</strong> +357 70 009394</p>
+        <p><strong>Email:</strong> alphamobilecy@gmail.com</p>
+        
+        <div class="map">
+          <iframe 
+            src="https://maps.google.com/maps?q=34.670439019742226,33.01206831632173&hl=en&z=15&output=embed" 
+            allowfullscreen="" 
+            loading="lazy">
+          </iframe>
+        </div>
       </div>
+      
       <div class="form-box">
         <h2 style="margin-top:0" id="form-title">Send a Message</h2>
         <input type="text" placeholder="Your Name" id="ph-name">

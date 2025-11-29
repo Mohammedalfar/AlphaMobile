@@ -321,8 +321,7 @@ window.checkout = function() {
   if(!user) { window.location.href = 'login.html'; return; }
   
   const curr = currencies[currentCurrency];
-  
-  // --- UPDATED WHATSAPP MESSAGE ---
+  // NEW WHATSAPP LINK WITH USER ADDRESS
   let msg = `New Order from *${user.name}*\n`;
   msg += `Phone: ${user.phone}\n`;
   msg += `Address: ${user.address}, ${user.city}\n\n`;
@@ -333,5 +332,6 @@ window.checkout = function() {
     msg += `- ${item.name} (${curr.symbol}${(item.price * curr.rate).toFixed(0)})\n`;
   });
   msg += `\n*Total: ${curr.symbol}${(total * curr.rate).toFixed(0)}*`;
-  window.open(`https://wa.me/35796123456?text=${encodeURIComponent(msg)}`, '_blank');
+  // NEW PHONE NUMBER
+  window.open(`https://wa.me/35770009394?text=${encodeURIComponent(msg)}`, '_blank');
 }
