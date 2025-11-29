@@ -111,4 +111,153 @@ window.toggleLangMenu = function() { document.getElementById('lang-menu').classL
 
 window.changeCurrency = function(currency) { 
   currentCurrency = currency; 
-  localStorage.setItem
+  localStorage.setItem('currency', currency); 
+  window.applyCurrency(currency); 
+}
+
+window.applyCurrency = function(currency) {
+  const data = currencies[currency];
+  document.querySelectorAll('.product-price, .price').forEach(el => {
+    if(!el.dataset.original) {
+      const match = el.innerText.match(/[\d,]+\.?\d*/); 
+      if(match) el.dataset.original = parseFloat(match[0].replace(/,/g, ''));
+    }
+    const base = parseFloat(el.dataset.original);
+    if(!isNaN(base)) {
+      if(el.innerText.includes('-')) return; 
+      el.innerText = `${data.symbol}${(base * data.rate).toFixed(0)}`;
+    }
+  });
+  updateCartUI();
+}
+
+window.toggleTheme = function() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+// --- CART LOGIC ---
+
+window.toggleCart = function() {
+  document.getElementById('cartSidebar').classList.toggle('open');
+  document.getElementById('cartOverlay').classList.toggle('active');
+}
+
+window.addToCart = function(id, price, name, img, desc) {
+  const displayName = desc ? `${name} (${desc})` : name;
+  cart.push({ id, name: displayName, price, img });
+  saveCart();
+  updateCartUI();
+  toggleCart();
+}
+
+window.removeFromCart = function(index) { 
+  cart.splice(index, 1); 
+  saveCart(); 
+  updateCartUI(); 
+}
+
+function saveCart() { 
+  localStorage.setItem('alphaCart', JSON.stringify(cart)); 
+  updateNavCounts(); 
+}
+
+function updateNavCounts() { 
+  document.querySelectorAll('.cart-count').forEach(el => el.innerText = cart.length); 
+}
+
+function updateCartUI() {
+  const container = document.getElementById('cartItems');
+  const totalEl = document.getElementById('cartTotal');
+  const curr = currencies[currentCurrency];
+  let total = 0;
+  
+  if (!container) return;
+
+  if (cart.length === 0) {
+    container.innerHTML = `<p style="color:var(--muted); text-align:center; margin-top:20px;">Empty</p>`;
+  } else {
+    container.innerHTML = cart.map((item, index) => {
+      total += item.price;
+      const displayPrice = (item.price * curr.rate).toFixed(0);
+      return `
+        <div class="cart-item">
+          <img src="${item.img}" alt="${item.name}">
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">${item.name}</div>
+            <div style="color:#93C572;font-weight:700">${curr.symbol}${displayPrice}</div>
+          </div>
+          <button onclick="removeFromCart(${index})" style="background:none;border:none;color:red;cursor:pointer;">✕</button>
+        </div>`;
+    }).join('');
+  }
+  
+  if(totalEl) totalEl.innerText = `${curr.symbol}${(total * curr.rate).toFixed(0)}`;
+}
+
+// --- CHECKOUT LOGIC ---
+
+window.checkout = async function() {
+  if(cart.length === 0) return alert("Your cart is empty.");
+
+  const btn = document.getElementById('cart-checkout');
+  btn.innerText = "Processing...";
+  btn.disabled = true;
+
+  try {
+    const module = await import('./db.js');
+    const auth = module.getAuthInstance();
+    const user = auth.currentUser;
+
+    if(!user) {
+      alert("Please Sign In to complete your order.");
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // 1. Calculate Total
+    let total = 0;
+    cart.forEach(item => total += item.price);
+    
+    // 2. Save Order to Database
+    await module.saveOrderToDB(user.uid, total, cart);
+    
+    // 3. Format WhatsApp Message
+    const curr = currencies[currentCurrency];
+    let msg = `*New Order: Alpha Mobile*\n`;
+    msg += `Client: ${user.email}\n`;
+    msg += `Order ID: #${Date.now().toString().slice(-6)}\n\n`;
+    
+    cart.forEach(item => { 
+      msg += `• ${item.name} - ${curr.symbol}${(item.price * curr.rate).toFixed(0)}\n`;
+    });
+    
+    msg += `\n*Total: ${curr.symbol}${(total * curr.rate).toFixed(0)}*`;
+    
+    // 4. Reset Cart
+    cart = [];
+    saveCart();
+    updateCartUI();
+    
+    // 5. Send
+    window.open(`https://wa.me/35796123456?text=${encodeURIComponent(msg)}`, '_blank');
+    
+  } catch(e) {
+    alert("Error: " + e.message);
+  } finally {
+    btn.innerText = "Checkout";
+    btn.disabled = false;
+  }
+}
+
+// --- LANGUAGE MOCK (Keeping original structure) ---
+window.changeLang = function(lang, code, name) { 
+  currentLang = lang; 
+  localStorage.setItem('lang', lang);
+  document.getElementById('current-code').innerText = code;
+  document.getElementById('current-name').innerText = name;
+  document.getElementById('lang-menu').classList.remove('open');
+  // Add translations map here if needed, omitted for brevity
+}
