@@ -22,6 +22,7 @@
     .item-row { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid var(--border); }
     .item-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #333; }
     .del-btn { background:#ef4444; width:auto; padding:5px 12px; font-size:12px;}
+    .hint { font-size: 11px; color: #94a3b8; margin-top: -10px; margin-bottom: 10px; display: block; }
   </style>
 </head>
 <body>
@@ -41,9 +42,16 @@
         <option value="charger">Charger</option>
       </select>
       
-      <label>Price (€)</label> 
+      <label>Base Price (€)</label> 
       <input type="number" id="p-price" placeholder="999">
       
+      <label>Colors (Comma Separated)</label>
+      <input type="text" id="p-colors" placeholder="Black, White, Blue">
+      
+      <label>Storage (Format: Size:ExtraPrice)</label>
+      <input type="text" id="p-storage" placeholder="128GB, 256GB:50, 512GB:100">
+      <span class="hint">Example: "256GB:50" adds €50 to base price.</span>
+
       <label>Stock Qty</label> 
       <input type="number" id="p-stock" value="5">
       
@@ -95,7 +103,7 @@
           })
         });
       } catch (err) {
-        list.innerHTML = "Error loading data. Check console.";
+        list.innerHTML = "Error loading data.";
         console.error(err);
       }
     }
@@ -116,11 +124,21 @@
       btn.disabled = true;
 
       try {
-        // A. Upload Image to ImgBB
+        // 1. Process Options
+        const colorStr = document.getElementById('p-colors').value;
+        const storageStr = document.getElementById('p-storage').value;
+        
+        const colors = colorStr ? colorStr.split(',').map(s => s.trim()) : [];
+        const storage = storageStr ? storageStr.split(',').map(s => {
+          const parts = s.split(':');
+          return { size: parts[0].trim(), price: parts[1] ? Number(parts[1]) : 0 };
+        }) : [];
+
+        // 2. Upload Image
         const file = fileInput.files[0];
         const imageUrl = await uploadImage(file);
 
-        // B. Save Product to Firebase
+        // 3. Save to DB
         btn.innerText = "Saving Data...";
         
         const newItem = {
@@ -128,29 +146,24 @@
           type: document.getElementById('p-type').value,
           price: Number(price),
           stock: Number(document.getElementById('p-stock').value),
-          image: imageUrl
+          image: imageUrl,
+          options: { colors, storage }
         };
 
         await addProductToDB(newItem);
         
         alert("Success! Product is live.");
-        
-        // Reset Form
-        document.getElementById('p-name').value = "";
-        document.getElementById('p-price').value = "";
-        fileInput.value = ""; 
-        load(); 
+        location.reload();
 
       } catch (error) {
         console.error(error);
         alert("Error: " + error.message);
-      } finally {
         btn.innerText = "Upload & Save";
         btn.disabled = false;
       }
     });
 
-    load(); // Start
+    load();
   </script>
 </body>
 </html>
