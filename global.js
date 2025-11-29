@@ -1,4 +1,4 @@
-/* global.js */
+/* global.js - Manual Lang, Currency, Cart, Theme */
 
 // --- 1. CONFIGURATION ---
 const currencies = {
@@ -12,27 +12,86 @@ const currencies = {
   CHF: { rate: 0.95, symbol: "Fr" }
 };
 
+const translations = {
+  en: {
+    nav: ["Home", "Shop", "Repairs", "Contact"],
+    cart: { title: "Your Basket", empty: "Cart is empty", total: "Total", checkout: "Checkout via WhatsApp" },
+    shop: { title: "Shop", filter: ["All", "Phones", "Audio", "Cables"], btn: "Add to Cart" },
+    repair: { title: "Service Menu" },
+    contact: { title: "Visit Us", formTitle: "Send a Message", btn: "Send", ph: ["Your Name", "Phone Number", "How can we help?"] }
+  },
+  el: {
+    nav: ["Αρχική", "Κατάστημα", "Επισκευές", "Επικοινωνία"],
+    cart: { title: "Καλάθι", empty: "Άδειο", total: "Σύνολο", checkout: "Αγορά μέσω WhatsApp" },
+    shop: { title: "Κατάστημα", filter: ["Όλα", "Κινητά", "Ήχος", "Καλώδια"], btn: "Προσθήκη" },
+    repair: { title: "Μενού Υπηρεσιών" },
+    contact: { title: "Επισκεφθείτε μας", formTitle: "Στείλτε Μήνυμα", btn: "Αποστολή", ph: ["Όνομα", "Τηλέφωνο", "Μήνυμα..."] }
+  },
+  ar: {
+    nav: ["الرئيسية", "المتجر", "تصليح", "اتصل بنا"],
+    cart: { title: "سلة التسوق", empty: "السلة فارغة", total: "المجموع", checkout: "إتمام الطلب" },
+    shop: { title: "المتجر", filter: ["الكل", "هواتف", "صوتيات", "كابلات"], btn: "أضف للسلة" },
+    repair: { title: "قائمة الخدمات" },
+    contact: { title: "زورونا", formTitle: "أرسل رسالة", btn: "إرسال", ph: ["الاسم", "رقم الهاتف", "كيف يمكننا مساعدتك؟"] }
+  },
+  pl: {
+    nav: ["Start", "Sklep", "Naprawy", "Kontakt"],
+    cart: { title: "Koszyk", empty: "Pusty", total: "Suma", checkout: "Zamów" },
+    shop: { title: "Sklep", filter: ["Wszystkie", "Telefony", "Audio", "Kable"], btn: "Dodaj" },
+    repair: { title: "Usługi" },
+    contact: { title: "Kontakt", formTitle: "Wyślij wiadomość", btn: "Wyślij", ph: ["Imię", "Telefon", "Wiadomość..."] }
+  },
+  fr: {
+    nav: ["Accueil", "Boutique", "Réparations", "Contact"],
+    cart: { title: "Panier", empty: "Vide", total: "Total", checkout: "Commander" },
+    shop: { title: "Boutique", filter: ["Tout", "Téléphones", "Audio", "Câbles"], btn: "Ajouter" },
+    repair: { title: "Services" },
+    contact: { title: "Contact", formTitle: "Message", btn: "Envoyer", ph: ["Nom", "Téléphone", "Message..."] }
+  },
+  de: {
+    nav: ["Start", "Shop", "Reparatur", "Kontakt"],
+    cart: { title: "Warenkorb", empty: "Leer", total: "Gesamt", checkout: "Bestellen" },
+    shop: { title: "Shop", filter: ["Alle", "Handys", "Audio", "Kabel"], btn: "Hinzufügen" },
+    repair: { title: "Service" },
+    contact: { title: "Kontakt", formTitle: "Nachricht", btn: "Senden", ph: ["Name", "Telefon", "Nachricht..."] }
+  },
+  ru: {
+    nav: ["Главная", "Магазин", "Ремонт", "Контакты"],
+    cart: { title: "Корзина", empty: "Пусто", total: "Итого", checkout: "Заказать" },
+    shop: { title: "Магазин", filter: ["Все", "Телефоны", "Аудио", "Кабели"], btn: "В корзину" },
+    repair: { title: "Услуги" },
+    contact: { title: "Контакты", formTitle: "Сообщение", btn: "Отправить", ph: ["Имя", "Телефон", "Сообщение..."] }
+  },
+  tr: {
+    nav: ["Ana Sayfa", "Mağaza", "Tamir", "İletişim"],
+    cart: { title: "Sepet", empty: "Boş", total: "Toplam", checkout: "Satın Al" },
+    shop: { title: "Mağaza", filter: ["Tümü", "Telefonlar", "Ses", "Kablolar"], btn: "Ekle" },
+    repair: { title: "Servis" },
+    contact: { title: "İletişim", formTitle: "Mesaj", btn: "Gönder", ph: ["İsim", "Telefon", "Mesaj..."] }
+  }
+};
+
 let currentCurrency = localStorage.getItem('currency') || 'EUR';
+let currentLang = localStorage.getItem('lang') || 'en';
 
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Inject Cart HTML
   const cartHTML = `
     <div class="cart-sidebar" id="cartSidebar">
       <div class="cart-header">
-        <h2 style="margin:0">Basket</h2>
+        <h2 style="margin:0" id="cart-title">Basket</h2>
         <button class="cart-close" onclick="toggleCart()">×</button>
       </div>
       <div class="cart-items" id="cartItems">
-        <p style="color:var(--muted); text-align:center; margin-top:20px;">Cart is empty</p>
+        <p style="color:var(--muted); text-align:center; margin-top:20px;">Empty</p>
       </div>
       <div class="cart-footer">
-        <div class="cart-total"><span>Total</span><span id="cartTotal">€0</span></div>
-        <button class="btn-checkout" onclick="checkout()">Checkout via WhatsApp</button>
+        <div class="cart-total"><span id="cart-total-lbl">Total</span><span id="cartTotal">€0</span></div>
+        <button class="btn-checkout" onclick="checkout()" id="cart-checkout">Checkout</button>
       </div>
     </div>
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
     <style>
-      /* Cart CSS */
       .cart-sidebar { position: fixed; top: 0; right: -400px; width: 350px; height: 100vh; background: var(--card); border-left: 1px solid var(--border); z-index: 99999; padding: 30px; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.1); color: var(--text); }
       .cart-sidebar.open { right: 0; }
       .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
@@ -44,53 +103,92 @@ document.addEventListener("DOMContentLoaded", () => {
       .cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
       .cart-total { margin-top: 20px; font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 15px; }
       .btn-checkout { width: 100%; padding: 16px; background: #93C572; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 15px; transition: 0.2s; }
-      
-      /* Google Translate & Currency Styling */
-      .goog-te-banner-frame { display: none !important; }
-      body { top: 0 !important; }
-      .skiptranslate { display: flex !important; align-items: center; }
-      .goog-te-gadget { font-family: 'Inter', sans-serif !important; font-size: 0 !important; }
-      .goog-te-gadget span { display: none !important; }
-      
-      /* Common Control Styles */
-      .control-select, .goog-te-combo {
-        padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border);
-        background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none;
-        margin: 0 !important; height: 36px; font-family: 'Inter', sans-serif;
-      }
-      .goog-te-combo { margin-right: 0 !important; width: auto; }
+      .control-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none; margin: 0; height: 36px; font-family: 'Inter', sans-serif; }
+      html[dir="rtl"] .cart-sidebar { right: auto; left: -400px; border-left: none; border-right: 1px solid var(--border); }
+      html[dir="rtl"] .cart-sidebar.open { left: 0; }
     </style>
   `;
   document.body.insertAdjacentHTML('beforeend', cartHTML);
-  updateCartUI();
-  updateNavCounts();
-
-  // 2. Init Theme
+  
+  // 2. Load Settings
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
   
-  // 3. Inject Google Translate
-  if(!document.querySelector('script[src*="translate.google.com"]')) {
-    const script = document.createElement('script');
-    script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    document.body.appendChild(script);
-  }
-
-  // 4. Apply Saved Currency
   const currSelector = document.getElementById('currency-selector');
   if(currSelector) currSelector.value = currentCurrency;
+  
+  applyLanguage(currentLang);
   applyCurrency(currentCurrency);
+  updateCartUI();
+  updateNavCounts();
 });
 
-// --- GOOGLE TRANSLATE ---
-window.googleTranslateElementInit = function() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'en,el,ar,pl,fr,de,ru,tr,it,es',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-    autoDisplay: false
-  }, 'google_translate_element');
+/* --- LANGUAGE LOGIC --- */
+window.toggleLangMenu = function() {
+  document.getElementById('lang-menu').classList.toggle('open');
 }
+
+window.changeLang = function(lang, code, name) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  localStorage.setItem('langCode', code);
+  localStorage.setItem('langName', name);
+  applyLanguage(lang);
+  document.getElementById('lang-menu').classList.remove('open');
+  
+  // Update Header Text
+  document.getElementById('current-code').innerText = code;
+  document.getElementById('current-name').innerText = name;
+}
+
+function applyLanguage(lang) {
+  const t = translations[lang] || translations['en'];
+  document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+
+  // Nav
+  if(document.getElementById('nav-1')) document.getElementById('nav-1').innerText = t.nav[0];
+  if(document.getElementById('nav-2')) document.getElementById('nav-2').innerText = t.nav[1];
+  if(document.getElementById('nav-3')) document.getElementById('nav-3').innerText = t.nav[2];
+  if(document.getElementById('nav-4')) document.getElementById('nav-4').innerText = t.nav[3];
+
+  // Cart
+  if(document.getElementById('cart-title')) document.getElementById('cart-title').innerText = t.cart.title;
+  if(document.getElementById('cart-total-lbl')) document.getElementById('cart-total-lbl').innerText = t.cart.total;
+  if(document.getElementById('cart-checkout')) document.getElementById('cart-checkout').innerText = t.cart.checkout;
+
+  // Pages
+  if(document.getElementById('page-title')) {
+    const p = window.location.pathname;
+    if(p.includes('shop')) document.getElementById('page-title').innerText = t.shop.title;
+    else if(p.includes('repair')) document.getElementById('page-title').innerText = t.repair.title;
+    else if(p.includes('contact')) document.getElementById('page-title').innerText = t.contact.title;
+  }
+
+  // Shop Filters
+  if(document.getElementById('f-all')) {
+    document.getElementById('f-all').innerText = t.shop.filter[0];
+    document.getElementById('f-phone').innerText = t.shop.filter[1];
+    document.getElementById('f-audio').innerText = t.shop.filter[2];
+    document.getElementById('f-cable').innerText = t.shop.filter[3];
+  }
+
+  // Contact
+  if(document.getElementById('form-title')) document.getElementById('form-title').innerText = t.contact.formTitle;
+  if(document.getElementById('btn-send')) document.getElementById('btn-send').innerText = t.contact.btn;
+  if(document.getElementById('ph-name')) document.getElementById('ph-name').placeholder = t.contact.ph[0];
+  if(document.getElementById('ph-phone')) document.getElementById('ph-phone').placeholder = t.contact.ph[1];
+  if(document.getElementById('ph-msg')) document.getElementById('ph-msg').placeholder = t.contact.ph[2];
+
+  // Update Grid Buttons
+  document.querySelectorAll('.btn-buy').forEach(b => {
+    if(b.innerText !== "Add to Cart") b.innerText = t.shop.btn;
+  });
+}
+
+// Close Dropdown on Click Outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.lang-dropdown')) document.getElementById('lang-menu')?.classList.remove('open');
+});
 
 /* --- CURRENCY LOGIC --- */
 window.changeCurrency = function(currency) {
@@ -102,36 +200,21 @@ window.changeCurrency = function(currency) {
 function applyCurrency(currency) {
   const data = currencies[currency];
   
-  // 1. Convert visible prices on page
-  document.querySelectorAll('.price, .product-price').forEach(el => {
-    // Check if we have the original EUR price saved
+  // 1. Convert Prices
+  document.querySelectorAll('.product-price, .price').forEach(el => {
     if(!el.dataset.original) {
-      // Clean the text to find the number (remove non-numeric chars except dot)
-      const text = el.innerText;
-      const match = text.match(/[\d,]+\.?\d*/); 
-      if(match) {
-        el.dataset.original = parseFloat(match[0].replace(/,/g, ''));
-      }
+      const match = el.innerText.match(/[\d,]+\.?\d*/); 
+      if(match) el.dataset.original = parseFloat(match[0].replace(/,/g, ''));
     }
-    
-    // Calculate new price
-    const basePrice = parseFloat(el.dataset.original);
-    if(!isNaN(basePrice)) {
-      const newPrice = (basePrice * data.rate).toFixed(0);
-      
-      // Handle ranges (e.g., Repairs page)
-      if(el.innerText.includes('-')) {
-         // Logic for ranges is complex, simple refresh might be better, 
-         // but for now we just update single prices cleanly.
-         // For repairs, we might need a refresh to re-render from base.
-      } else {
-         el.innerText = `${data.symbol}${newPrice}`;
-      }
+    const base = parseFloat(el.dataset.original);
+    if(!isNaN(base)) {
+      if(el.innerText.includes('-')) return; // Skip ranges for now
+      el.innerText = `${data.symbol}${(base * data.rate).toFixed(0)}`;
     }
   });
-
-  // 2. Update Cart Total
-  updateCartUI(); 
+  
+  // 2. Update Cart
+  updateCartUI();
 }
 
 /* --- THEME LOGIC --- */
@@ -177,34 +260,24 @@ function updateCartUI() {
   const container = document.getElementById('cartItems');
   const totalEl = document.getElementById('cartTotal');
   const curr = currencies[currentCurrency];
+  const lang = currentLang;
+  const t = translations[lang] || translations['en'];
   
   let total = 0;
   if (cart.length === 0) {
-    if(container) container.innerHTML = '<p style="color:var(--muted); text-align:center; margin-top:20px;">Cart is empty</p>';
+    if(container) container.innerHTML = `<p style="color:var(--muted); text-align:center; margin-top:20px;">${t.cart.empty}</p>`;
   } else {
     if(container) container.innerHTML = cart.map((item, index) => {
+      total += item.price;
       const displayPrice = (item.price * curr.rate).toFixed(0);
-      total += item.price; // Keep internal total in EUR
-      return `
-        <div class="cart-item">
-          <img src="${item.img}" alt="${item.name}">
-          <div style="flex:1">
-            <div style="font-weight:600;font-size:14px">${item.name}</div>
-            <div style="color:#93C572;font-weight:700">${curr.symbol}${displayPrice}</div>
-          </div>
-          <button onclick="removeFromCart(${index})" style="background:none;border:none;color:red;cursor:pointer;">✕</button>
-        </div>`;
+      return `<div class="cart-item"><img src="${item.img}" alt="${item.name}"><div style="flex:1"><div style="font-weight:600;font-size:14px">${item.name}</div><div style="color:#93C572;font-weight:700">${curr.symbol}${displayPrice}</div></div><button onclick="removeFromCart(${index})" style="background:none;border:none;color:red;cursor:pointer;">✕</button></div>`;
     }).join('');
   }
-  
-  if(totalEl) {
-    const displayTotal = (total * curr.rate).toFixed(0);
-    totalEl.innerText = `${curr.symbol}${displayTotal}`;
-  }
+  if(totalEl) totalEl.innerText = `${curr.symbol}${(total * curr.rate).toFixed(0)}`;
 }
 
 window.checkout = function() {
-  if(cart.length === 0) return alert("Cart is empty");
+  if(cart.length === 0) return alert("Empty Cart");
   const user = JSON.parse(localStorage.getItem('alphaUser'));
   if(!user) { window.location.href = 'login.html'; return; }
   
@@ -212,11 +285,9 @@ window.checkout = function() {
   let msg = `New Order from *${user.name}*\nPhone: ${user.phone}\nAddress: ${user.address}\n\n`;
   let total = 0;
   cart.forEach(item => { 
-    const p = (item.price * curr.rate).toFixed(0);
-    msg += `- ${item.name} (${curr.symbol}${p})\n`; 
-    total += item.price; 
+    total += item.price;
+    msg += `- ${item.name} (${curr.symbol}${(item.price * curr.rate).toFixed(0)})\n`;
   });
-  const t = (total * curr.rate).toFixed(0);
-  msg += `\n*Total: ${curr.symbol}${t}*`;
+  msg += `\n*Total: ${curr.symbol}${(total * curr.rate).toFixed(0)}*`;
   window.open(`https://wa.me/35796123456?text=${encodeURIComponent(msg)}`, '_blank');
 }
