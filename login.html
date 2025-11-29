@@ -10,6 +10,9 @@
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; }
     
+    /* DARK MODE FIX */
+    input, select, textarea, button { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    
     .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
     h1 { margin-top: 0; text-align: center; }
     p { text-align: center; color: var(--muted); margin-bottom: 30px; }
@@ -27,7 +30,7 @@
 
   <div class="login-card">
     <h1>Details Required</h1>
-    <p>Please enter your details to complete the order.</p>
+    <p>Please enter your details to sign in.</p>
 
     <label>Full Name</label>
     <input type="text" id="u-name" placeholder="John Doe">
@@ -43,6 +46,10 @@
   </div>
 
   <script>
+    // Apply theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
     function saveAndContinue() {
       const name = document.getElementById('u-name').value;
       const phone = document.getElementById('u-phone').value;
@@ -53,8 +60,8 @@
       const user = { name, phone, address };
       localStorage.setItem('alphaUser', JSON.stringify(user));
 
-      // Go back to the shop to finish checkout
-      window.location.href = 'shop.html?checkout=true';
+      // Go back to the shop
+      window.location.href = 'shop.html';
     }
   </script>
 </body>

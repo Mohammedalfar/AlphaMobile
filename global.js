@@ -1,4 +1,4 @@
-/* global.js - Final Fixes */
+/* global.js - Final Fixes & Profile Logic */
 
 // --- 1. CONFIGURATION ---
 const currencies = {
@@ -126,6 +126,44 @@ document.addEventListener("DOMContentLoaded", () => {
   updateNavCounts();
 });
 
+// --- Profile / Login Logic ---
+window.toggleProfile = function() {
+  document.getElementById('profile-menu').classList.toggle('open');
+  updateProfileMenu();
+}
+
+window.updateProfileMenu = function() {
+  const user = JSON.parse(localStorage.getItem('alphaUser'));
+  const menu = document.getElementById('profile-menu');
+  
+  if(user) {
+    menu.innerHTML = `
+      <div style="padding:10px; font-weight:600; color:var(--text); border-bottom:1px solid var(--border); margin-bottom:5px;">Hi, ${user.name.split(' ')[0]}</div>
+      <div class="profile-option" onclick="window.location.href='shop.html'">My Orders (WhatsApp)</div>
+      <div class="profile-option" onclick="logoutUser()" style="color:#ef4444">Logout</div>
+    `;
+  } else {
+    menu.innerHTML = `
+      <div class="profile-option" onclick="window.location.href='login.html'">Login</div>
+      <div class="profile-option" onclick="window.location.href='login.html'">Register</div>
+    `;
+  }
+}
+
+window.logoutUser = function() {
+  localStorage.removeItem('alphaUser');
+  document.getElementById('profile-menu').classList.remove('open');
+  location.reload();
+}
+
+document.addEventListener('click', (e) => {
+  // Close profile menu if clicked outside
+  if (!e.target.closest('.profile-btn')) document.getElementById('profile-menu')?.classList.remove('open');
+  // Close lang menu if clicked outside
+  if (!e.target.closest('.lang-dropdown')) document.getElementById('lang-menu')?.classList.remove('open');
+});
+
+
 // --- Language ---
 window.toggleLangMenu = function() {
   document.getElementById('lang-menu').classList.toggle('open');
@@ -187,15 +225,11 @@ window.applyLanguage = function(lang) {
   updateCartUI();
 }
 
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.lang-dropdown')) document.getElementById('lang-menu')?.classList.remove('open');
-});
-
 // --- Currency (NO RELOAD FIX) ---
 window.changeCurrency = function(currency) {
   currentCurrency = currency;
   localStorage.setItem('currency', currency);
-  window.applyCurrency(currency); // Update UI directly, NO reload!
+  window.applyCurrency(currency); 
 }
 
 window.applyCurrency = function(currency) {
@@ -224,7 +258,7 @@ window.toggleTheme = function() {
   localStorage.setItem('theme', next);
 }
 
-// --- Cart Logic (INSTANT UPDATE FIX) ---
+// --- Cart Logic ---
 let cart = JSON.parse(localStorage.getItem('alphaCart')) || [];
 
 window.toggleCart = function() {
@@ -236,8 +270,8 @@ window.addToCart = function(id, price, name, img, desc) {
   const displayName = desc ? `${name} (${desc})` : name;
   cart.push({ id, name: displayName, price, img });
   saveCart();
-  updateCartUI(); // Force update immediately
-  toggleCart();   // Show cart
+  updateCartUI();
+  toggleCart();
 }
 
 window.removeFromCart = function(index) {
