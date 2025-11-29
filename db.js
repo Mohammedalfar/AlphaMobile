@@ -1,4 +1,4 @@
-/* db.js - Updated for Auth & Stats */
+/* db.js - Auth & Database Logic */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
@@ -17,8 +17,6 @@ const firebaseConfig = {
   appId: "1:330339001354:web:d8167638947b00a830abf3"
 };
 
-const IMGBB_KEY = "0d5d7004a1b398898328dc1f199b7665"; 
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -35,7 +33,8 @@ export async function getProducts() {
 export async function uploadImage(file) {
   const formData = new FormData();
   formData.append("image", file);
-  const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
+  // Using the key provided in your original file
+  const response = await fetch(`https://api.imgbb.com/1/upload?key=0d5d7004a1b398898328dc1f199b7665`, { method: "POST", body: formData });
   const data = await response.json();
   if (data.success) return data.data.url;
   throw new Error("Image upload failed");
@@ -45,9 +44,9 @@ export async function addProductToDB(item) { await addDoc(productCollection, ite
 export async function updateProductInDB(id, data) { await updateDoc(doc(db, "products", id), data); }
 export async function deleteProductFromDB(id) { await deleteDoc(doc(db, "products", id)); }
 
-// --- AUTH & USER STATS ---
+// --- AUTH SYSTEM ---
 
-// 1. Sign Up
+// 1. Sign Up & Create Profile
 export async function registerUser(email, password, name, phone) {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
@@ -74,7 +73,7 @@ export async function logoutUser() {
   return await signOut(auth);
 }
 
-// 4. Get Current User Profile
+// 4. Get Profile Data
 export async function getUserProfile(uid) {
   const docRef = doc(db, "users", uid);
   const docSnap = await getDoc(docRef);
@@ -86,7 +85,7 @@ export async function getUserProfile(uid) {
 export async function saveOrderToDB(uid, cartTotal, items) {
   if(!uid) return;
   
-  // A. Save the order record
+  // Record the order
   await addDoc(collection(db, "orders"), {
     userId: uid,
     items: items,
@@ -95,7 +94,7 @@ export async function saveOrderToDB(uid, cartTotal, items) {
     status: "Pending"
   });
 
-  // B. Update User Stats (Atomic Increment)
+  // Increment User Stats
   const userRef = doc(db, "users", uid);
   await updateDoc(userRef, {
     ordersCount: increment(1),
@@ -103,7 +102,12 @@ export async function saveOrderToDB(uid, cartTotal, items) {
   });
 }
 
-// 6. Auth Listener
+// 6. Auth State Listener
 export function subscribeToAuth(callback) {
   onAuthStateChanged(auth, callback);
+}
+
+// 7. Get Current Auth Object (for sync checks)
+export function getAuthInstance() {
+  return auth;
 }
