@@ -34,7 +34,7 @@
     .lang-option:hover { background: rgba(147,197,115,.1); }
     html[dir="rtl"] .lang-menu { right: auto; left: 0; }
 
-    /* GRID */
+    /* GRID & CARDS */
     .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; padding-bottom: 80px; }
     .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; height: 100%; }
     .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -57,7 +57,7 @@
     @keyframes logoIn { to { opacity: 1; transform: scale(1); } }
     @keyframes lineExpand { to { width: 120px; } }
     
-    @media(max-width:900px){ header{flex-direction:column; gap:20px;} .controls {margin:0;}}
+    @media(max-width:900px){ header{flex-direction:column; gap:20px;} .controls {margin:0; flex-wrap:wrap; justify-content:center;} }
   </style>
 </head>
 <body>
@@ -82,6 +82,7 @@
             <option value="CAD">$ CAD</option>
             <option value="CHF">Fr CHF</option>
           </select>
+          
           <div class="lang-dropdown">
             <button class="lang-btn" onclick="toggleLangMenu()">
               <span id="current-code">US</span> <span style="font-size:12px; color:var(--muted)" id="current-name">English</span>
@@ -97,6 +98,7 @@
               <div class="lang-option" onclick="changeLang('tr', 'TR', 'Türkçe')">Türkçe</div>
             </div>
           </div>
+
           <div class="theme-toggle" onclick="toggleTheme()">
             <svg class="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m13.44 13.44l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m13.44-13.44l1.42-1.42"/></svg>
             <svg class="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -124,7 +126,10 @@
   </div>
 
   <script src="global.js"></script>
-  <script>window.addEventListener('load', () => { setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500); });</script>
+  
+  <script>
+    setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500);
+  </script>
 
   <script type="module">
     import { getProducts } from './db.js';

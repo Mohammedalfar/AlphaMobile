@@ -51,7 +51,7 @@
     @keyframes lineExpand { to { width: 120px; } }
     @keyframes fadeIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
     
-    @media(max-width:900px){ header{flex-direction:column; gap:20px;} .controls {margin:0;}}
+    @media(max-width:900px){ header{flex-direction:column; gap:20px;} .controls {margin:0; flex-wrap:wrap; justify-content:center;} }
   </style>
 </head>
 <body>
@@ -116,6 +116,6 @@
   </div>
 
   <script src="global.js"></script>
-  <script>window.addEventListener('load', () => { setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500); });</script>
+  <script>setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500);</script>
 </body>
 </html>

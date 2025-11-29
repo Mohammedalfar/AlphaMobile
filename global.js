@@ -1,4 +1,4 @@
-/* global.js - Manual Lang, Currency, Cart, Theme */
+/* global.js */
 
 // --- 1. CONFIGURATION ---
 const currencies = {
@@ -104,6 +104,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .cart-total { margin-top: 20px; font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 15px; }
       .btn-checkout { width: 100%; padding: 16px; background: #93C572; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 15px; transition: 0.2s; }
       .control-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none; margin: 0; height: 36px; font-family: 'Inter', sans-serif; }
+      
+      /* MOBILE FIXES */
+      @media(max-width: 500px) {
+        .cart-sidebar { width: 100%; right: -100%; }
+        .cart-sidebar.open { right: 0; }
+      }
+      
       html[dir="rtl"] .cart-sidebar { right: auto; left: -400px; border-left: none; border-right: 1px solid var(--border); }
       html[dir="rtl"] .cart-sidebar.open { left: 0; }
     </style>
@@ -136,7 +143,6 @@ window.changeLang = function(lang, code, name) {
   applyLanguage(lang);
   document.getElementById('lang-menu').classList.remove('open');
   
-  // Update Header Text
   document.getElementById('current-code').innerText = code;
   document.getElementById('current-name').innerText = name;
 }
@@ -145,18 +151,15 @@ function applyLanguage(lang) {
   const t = translations[lang] || translations['en'];
   document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
 
-  // Nav
   if(document.getElementById('nav-1')) document.getElementById('nav-1').innerText = t.nav[0];
   if(document.getElementById('nav-2')) document.getElementById('nav-2').innerText = t.nav[1];
   if(document.getElementById('nav-3')) document.getElementById('nav-3').innerText = t.nav[2];
   if(document.getElementById('nav-4')) document.getElementById('nav-4').innerText = t.nav[3];
 
-  // Cart
   if(document.getElementById('cart-title')) document.getElementById('cart-title').innerText = t.cart.title;
   if(document.getElementById('cart-total-lbl')) document.getElementById('cart-total-lbl').innerText = t.cart.total;
   if(document.getElementById('cart-checkout')) document.getElementById('cart-checkout').innerText = t.cart.checkout;
 
-  // Pages
   if(document.getElementById('page-title')) {
     const p = window.location.pathname;
     if(p.includes('shop')) document.getElementById('page-title').innerText = t.shop.title;
@@ -164,7 +167,6 @@ function applyLanguage(lang) {
     else if(p.includes('contact')) document.getElementById('page-title').innerText = t.contact.title;
   }
 
-  // Shop Filters
   if(document.getElementById('f-all')) {
     document.getElementById('f-all').innerText = t.shop.filter[0];
     document.getElementById('f-phone').innerText = t.shop.filter[1];
@@ -172,20 +174,17 @@ function applyLanguage(lang) {
     document.getElementById('f-cable').innerText = t.shop.filter[3];
   }
 
-  // Contact
   if(document.getElementById('form-title')) document.getElementById('form-title').innerText = t.contact.formTitle;
   if(document.getElementById('btn-send')) document.getElementById('btn-send').innerText = t.contact.btn;
   if(document.getElementById('ph-name')) document.getElementById('ph-name').placeholder = t.contact.ph[0];
   if(document.getElementById('ph-phone')) document.getElementById('ph-phone').placeholder = t.contact.ph[1];
   if(document.getElementById('ph-msg')) document.getElementById('ph-msg').placeholder = t.contact.ph[2];
 
-  // Update Grid Buttons
   document.querySelectorAll('.btn-buy').forEach(b => {
     if(b.innerText !== "Add to Cart") b.innerText = t.shop.btn;
   });
 }
 
-// Close Dropdown on Click Outside
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.lang-dropdown')) document.getElementById('lang-menu')?.classList.remove('open');
 });
@@ -199,8 +198,6 @@ window.changeCurrency = function(currency) {
 
 function applyCurrency(currency) {
   const data = currencies[currency];
-  
-  // 1. Convert Prices
   document.querySelectorAll('.product-price, .price').forEach(el => {
     if(!el.dataset.original) {
       const match = el.innerText.match(/[\d,]+\.?\d*/); 
@@ -208,12 +205,10 @@ function applyCurrency(currency) {
     }
     const base = parseFloat(el.dataset.original);
     if(!isNaN(base)) {
-      if(el.innerText.includes('-')) return; // Skip ranges for now
+      if(el.innerText.includes('-')) return; 
       el.innerText = `${data.symbol}${(base * data.rate).toFixed(0)}`;
     }
   });
-  
-  // 2. Update Cart
   updateCartUI();
 }
 
