@@ -1,4 +1,4 @@
-/* db.js – Final version (no OTP, email+password only) */
+/* db.js – FINAL VERSION (Fixed API Key + Full Auth + No OTP) */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
@@ -8,54 +8,57 @@ import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+// EXACT CONFIG FROM YOUR FIREBASE CONSOLE (you just sent it)
 const firebaseConfig = {
-  apiKey: "AIzaSyCLf1DOjLGHya_zui5GdonPDDo3qGMryMQ",
+  apiKey: "AIzaSyClF1DOjLGHya_zuI5GdonPDDo3qGMryMQ",
   authDomain: "alphamobilecyy.firebaseapp.com",
   projectId: "alphamobilecyy",
-  storageBucket: "alphamobilecyy.firebasestorage.app",
+  storageBucket: "alphamobilecyy.appspot.com",           // ← FIXED: was wrong before
   messagingSenderId: "330339001354",
-  appId: "1:330339001354:web:d8167638947b00a830abf3"
+  appId: "1:330339001354:web:d8167638947b00a830abf3",
+  measurementId: "G-5GSKB3F1TK"
 };
 
-const IMGBB_KEY = "0d5d7004a1b398898328dc1f199b7665";
-
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const productCollection = collection(db, "products");
 
+// Export auth for global.js
 export { auth };
 
-// PRODUCTS
+// ────────────────────── PRODUCTS ──────────────────────
 export async function getProducts() {
   const snapshot = await getDocs(productCollection);
-  let list = [];
+  const list = [];
   snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
   return list;
 }
 
 export async function uploadImage(file) {
+  const IMGBB_KEY = "0d5d7004a1b398898328dc1f199b7665";
   const fd = new FormData();
   fd.append("image", file);
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:fd });
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: fd });
   const json = await res.json();
   if (json.success) return json.data.url;
-  throw new Error("Upload failed");
+  throw new Error("Image upload failed");
 }
 
 export async function addProductToDB(item) { await addDoc(productCollection, item); }
-export async function updateProductInDB(id, data) { await updateDoc(doc(db,"products",id), data); }
-export async function deleteProductFromDB(id) { await deleteDoc(doc(db,"products",id)); }
+export async function updateProductInDB(id, data) { await updateDoc(doc(db, "products", id), data); }
+export async function deleteProductFromDB(id) { await deleteDoc(doc(db, "products", id)); }
 
-// AUTH
+// ────────────────────── AUTH & USER ──────────────────────
 export async function registerUser(email, password, username, fullName = "") {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   const user = cred.user;
 
   await setDoc(doc(db, "users", user.uid), {
-    username: username,
+    username,
     name: fullName || username,
-    email: email,
+    email,
     joined: new Date().toISOString(),
     ordersCount: 0,
     totalSpent: 0
@@ -69,7 +72,7 @@ export async function loginUser(email, password) {
 }
 
 export async function logoutUser() {
-  return signOut(auth);
+  await signOut(auth);
 }
 
 export async function getUserProfile(uid) {
@@ -81,13 +84,12 @@ export async function saveOrderToDB(uid, total, items) {
   if (!uid) return;
   await addDoc(collection(db, "orders"), {
     userId: uid,
-    items: items,
-    total: total,
+    items,
+    total,
     date: new Date().toISOString(),
     status: "Pending"
   });
-  const userRef = doc(db, "users", uid);
-  await updateDoc(userRef, {
+  await updateDoc(doc(db, "users", uid), {
     ordersCount: increment(1),
     totalSpent: increment(total)
   });
