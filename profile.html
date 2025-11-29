@@ -6,7 +6,6 @@
   <title>Alpha Mobile • Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    /* [existing styles from original profile.html] */
     :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; padding:20px; display:flex; justify-content:center; }
@@ -25,7 +24,6 @@
     .btn-home { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 12px 24px; border-radius: 99px; font-weight: 700; cursor: pointer; margin-top: 10px; margin-left: 10px; text-decoration: none; display: inline-block;}
     
     .loader { margin-top: 50px; color: var(--muted); font-weight: 600; }
-    #p-username { font-weight: 700; color: var(--pistachio); margin-bottom: 5px; }  /* New style for username */
   </style>
 </head>
 <body>
@@ -37,9 +35,7 @@
       <div id="content" style="display:none;">
         <div class="avatar" id="p-initial">?</div>
         <h1 id="p-name" style="margin:0">User</h1>
-        <div id="p-username">Username</div>  <!-- New: Show username -->
         <p id="p-email" style="color:var(--muted); margin-top:5px;">...</p>
-        <p id="p-phone" style="color:var(--muted); margin-top:5px;">Phone: ...</p>  <!-- Show phone -->
 
         <div class="stats-grid">
           <div class="stat-box">
@@ -71,16 +67,13 @@
       
       if(profile) {
         document.getElementById('p-name').innerText = profile.name || "Valued Customer";
-        document.getElementById('p-username').innerText = profile.username || "No Username";
         document.getElementById('p-email').innerText = profile.email;
-        document.getElementById('p-phone').innerText = "Phone: " + (profile.phone || "Not set");
         document.getElementById('p-initial').innerText = (profile.name || "U")[0].toUpperCase();
         document.getElementById('s-count').innerText = profile.ordersCount || 0;
         document.getElementById('s-spent').innerText = "€" + (profile.totalSpent || 0);
       } else {
         document.getElementById('p-name').innerText = "User";
         document.getElementById('p-email').innerText = user.email;
-        document.getElementById('p-username').innerText = "No Username";
       }
 
       document.getElementById('loader').style.display = 'none';

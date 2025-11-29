@@ -1,95 +1,145 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Alpha Mobile • Sign In / Sign Up</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Alpha Mobile • Access</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    :root{--p:#93C572;--bg:#fbfefb;--text:#0f172a;--card:#fff;--muted:#64748b;--border:rgba(0,0,0,.08)}
-    [data-theme="dark"]{--bg:#0a0e17;--card:#111827;--text:#f8fafc;--muted:#94a3b8;--border:rgba(255,255,255,.1)}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);margin:0;display:grid;place-items:center;min-height:100vh;padding:20px}
-    .card{background:var(--card);padding:40px;border-radius:32px;border:1px solid var(--border);max-width:420px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,.05)}
-    .tabs{display:flex;margin-bottom:30px;border-bottom:1px solid var(--border)}
-    .tab{flex:1;padding:15px;text-align:center;cursor:pointer;font-weight:700;color:var(--muted)}
-    .tab.active{color:var(--p);border-bottom:3px solid var(--p)}
-    h2{margin:0 0 20px;font-size:28px}
-    input{width:100%;padding:16px;margin:10px 0 20px;border-radius:16px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;box-sizing:border-box}
-    button{width:100%;padding:16px;background:var(--p);color:#fff;border:none;border-radius:16px;font-weight:700;cursor:pointer;margin-top:10px}
-    .error{color:#ef4444;text-align:center;margin-top:15px;display:none}
-    .back{text-align:center;margin-top:25px;color:var(--muted);text-decoration:none;font-size:14px;display:block}
+    :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
+    [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
+    body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:grid; place-items:center; min-height:100vh; padding:20px; }
+    
+    .auth-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+    
+    .tabs { display:flex; margin-bottom:30px; border-bottom:1px solid var(--border); }
+    .tab { flex:1; padding:15px; text-align:center; cursor:pointer; font-weight:700; color:var(--muted); border-bottom:2px solid transparent; transition:0.3s; }
+    .tab.active { color:var(--pistachio); border-color:var(--pistachio); }
+    
+    h1 { margin:0 0 10px 0; font-size:28px; }
+    .input-group { margin-bottom: 20px; }
+    label { display:block; font-size:13px; font-weight:700; margin-bottom:8px; color:var(--muted); }
+    input { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; box-sizing:border-box; }
+    
+    .btn-submit { width:100%; padding:16px; background:var(--pistachio); color:white; border:none; border-radius:16px; font-weight:700; cursor:pointer; font-size:16px; transition:0.2s; margin-top:10px; }
+    .btn-submit:hover { opacity:0.9; transform:scale(1.02); }
+    .error-msg { color:#ef4444; font-size:13px; margin-top:10px; display:none; text-align:center; }
+    
+    .hidden { display:none; }
+    .back-link { display:block; text-align:center; margin-top:20px; color:var(--muted); text-decoration:none; font-size:13px; }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="tabs">
-    <div class="tab active" onclick="tab('login')">Sign In</div>
-    <div class="tab" onclick="tab('register')">Sign Up</div>
+  <div class="auth-card">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('login')">Sign In</div>
+      <div class="tab" onclick="switchTab('register')">Sign Up</div>
+    </div>
+
+    <div id="login-form">
+      <h1>Welcome Back</h1>
+      <p style="color:var(--muted); margin-bottom:20px;">Enter your details to access your account.</p>
+      
+      <div class="input-group">
+        <label>Email Address</label>
+        <input type="email" id="l-email" placeholder="john@example.com">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="••••••••">
+      </div>
+      <button class="btn-submit" id="btn-login">Sign In</button>
+    </div>
+
+    <div id="register-form" class="hidden">
+      <h1>Create Account</h1>
+      <p style="color:var(--muted); margin-bottom:20px;">Start your journey with Alpha Mobile.</p>
+      
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" id="r-name" placeholder="John Doe">
+      </div>
+      <div class="input-group">
+        <label>Phone Number</label>
+        <input type="tel" id="r-phone" placeholder="+357 ...">
+      </div>
+      <div class="input-group">
+        <label>Email Address</label>
+        <input type="email" id="r-email" placeholder="john@example.com">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="r-pass" placeholder="Create a password">
+      </div>
+      <button class="btn-submit" id="btn-register">Create Account</button>
+    </div>
+
+    <div class="error-msg" id="error-txt"></div>
+    <a href="shop.html" class="back-link">Back to Shop</a>
   </div>
 
-  <!-- LOGIN -->
-  <div id="login">
-    <h2>Welcome Back</h2>
-    <input type="email" id="l-email" placeholder="Email address">
-    <input type="password" id="l-pass" placeholder="Password">
-    <button id="btn-login">Sign In</button>
-  </div>
+  <script type="module">
+    import { registerUser, loginUser } from './db.js';
 
-  <!-- REGISTER -->
-  <div id="register" style="display:none">
-    <h2>Create Account</h2>
-    <input type="text" id="r-username" placeholder="Username">
-    <input type="text" id="r-name" placeholder="Full name (optional)">
-    <input type="email" id="r-email" placeholder="Email address">
-    <input type="password" id="r-pass" placeholder="Password">
-    <button id="btn-register">Create Account</button>
-  </div>
+    window.switchTab = (tab) => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if(tab === 'login') {
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+      } else {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+      }
+      document.getElementById('error-txt').style.display = 'none';
+    }
 
-  <div class="error" id="error"></div>
-  <a href="shop.html" class="back">Back to Shop</a>
-</div>
+    document.getElementById('btn-login').onclick = async () => {
+      const email = document.getElementById('l-email').value;
+      const pass = document.getElementById('l-pass').value;
+      const btn = document.getElementById('btn-login');
+      
+      try {
+        btn.innerText = "Verifying...";
+        await loginUser(email, pass);
+        // Save minimal info for global.js compatibility
+        localStorage.setItem('alphaUser', JSON.stringify({ email })); 
+        window.location.href = 'profile.html';
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.innerText = "Sign In";
+      }
+    };
 
-<script type="module">
-  import { registerUser, loginUser } from './db.js';
+    document.getElementById('btn-register').onclick = async () => {
+      const name = document.getElementById('r-name').value;
+      const phone = document.getElementById('r-phone').value;
+      const email = document.getElementById('r-email').value;
+      const pass = document.getElementById('r-pass').value;
+      const btn = document.getElementById('btn-register');
 
-  window.tab = (id) => {
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById('login').style.display = id==='login'?'block':'none';
-    document.getElementById('register').style.display = id==='register'?'block':'none';
-    document.getElementById('error').style.display='none';
-  };
+      if(!name || !phone || !email || !pass) return showError("All fields required");
 
-  document.getElementById('btn-login').onclick = async () => {
-    const email = document.getElementById('l-email').value.trim();
-    const pass = document.getElementById('l-pass').value;
-    if(!email || !pass) return err("Please fill all fields");
-    try {
-      await loginUser(email, pass);
-      localStorage.setItem('alphaUser', 'true');
-      location.href = 'shop.html?openCart=true';
-    } catch(e){ err(e.message); }
-  };
+      try {
+        btn.innerText = "Creating...";
+        await registerUser(email, pass, name, phone);
+        localStorage.setItem('alphaUser', JSON.stringify({ name, phone, email }));
+        window.location.href = 'profile.html';
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.innerText = "Create Account";
+      }
+    };
 
-  document.getElementById('btn-register').onclick = async () => {
-    const username = document.getElementById('r-username').value.trim();
-    const name = document.getElementById('r-name').value.trim();
-    const email = document.getElementById('r-email').value.trim();
-    const pass = document.getElementById('r-pass').value;
-    if(!username || !email || !pass) return err("Username, email & password required");
-    try {
-      await registerUser(email, pass, username, name);
-      localStorage.setItem('alphaUser', 'true');
-      location.href = 'shop.html?openCart=true';
-    } catch(e){ err(e.message); }
-  };
-
-  function err(msg){
-    const e = document.getElementById('error');
-    e.textContent = msg;
-    e.style.display = 'block';
-  }
-</script>
+    function showError(msg) {
+      const el = document.getElementById('error-txt');
+      el.innerText = msg.replace("Firebase: ", "");
+      el.style.display = 'block';
+    }
+  </script>
 </body>
 </html>
