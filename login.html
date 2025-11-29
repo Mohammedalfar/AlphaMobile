@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Alpha Mobile • Login</title>
+  <title>Alpha Mobile • Access</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); --error: #ef4444; --success: #22c55e; }
@@ -19,7 +19,6 @@
     .form-group { margin-bottom: 18px; position: relative; }
     label { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block; color: var(--text); }
     
-    /* Input Styling */
     input { 
       width: 100%; padding: 14px; border-radius: 12px; 
       border: 1px solid var(--border); 
@@ -28,7 +27,6 @@
       font-size: 14px; outline: none; transition: 0.2s;
     }
     
-    /* Validation Colors */
     input.invalid { border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
     input.valid { border-color: var(--success); }
     input:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
@@ -41,7 +39,6 @@
     
     .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); text-decoration: none; font-size: 13px; cursor: pointer;}
 
-    /* OTP Screen */
     .step-screen { display: none; animation: fadeIn 0.3s ease; }
     .step-screen.active { display: block; }
     .otp-input { letter-spacing: 8px; font-size: 24px; text-align: center; font-weight: 700; }
@@ -55,8 +52,8 @@
   <div class="login-card">
     
     <div id="step-1" class="step-screen active">
-      <h1>Sign In</h1>
-      <p>Enter your phone and email to continue.</p>
+      <h1 id="page-title">Sign In</h1>
+      <p id="page-desc">Enter your phone and email to continue.</p>
 
       <div class="form-group">
         <label>Phone Number (Cyprus Only)</label>
@@ -94,16 +91,25 @@
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
+    // --- DYNAMIC TITLE LOGIC ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+
+    if(mode === 'register') {
+      document.getElementById('page-title').innerText = "Create Account";
+      document.getElementById('page-desc').innerText = "Join Alpha Mobile today.";
+      document.title = "Alpha Mobile • Register";
+    }
+
     let generatedOTP = null;
     const iEmail = document.getElementById('u-email');
     const iPhone = document.getElementById('u-phone');
 
-    // --- 1. REAL-TIME PHONE CHECK ---
+    // Real-time Phone Validation
     iPhone.addEventListener('input', function(e) {
       let val = this.value;
       const err = document.getElementById('err-phone');
 
-      // 1. Strict Prefix Check
       if(!val.startsWith('+357')) {
         this.classList.add('invalid');
         this.classList.remove('valid');
@@ -112,9 +118,7 @@
         return; 
       }
 
-      // 2. Length Check (Prefix 5 chars + 8 digits = 13)
-      const numbersOnly = val.replace(/[^0-9]/g, ''); // removes '+' and ' '
-      // 357 + 8 digits = 11 digits total in 'numbersOnly' string
+      const numbersOnly = val.replace(/[^0-9]/g, '');
       
       if(numbersOnly.length === 11) {
         this.classList.remove('invalid');
@@ -128,7 +132,7 @@
       }
     });
 
-    // --- 2. REAL-TIME EMAIL CHECK ---
+    // Real-time Email Validation
     iEmail.addEventListener('input', function() {
       const val = this.value.toLowerCase().trim();
       const validDomains = /@(gmail|yahoo|outlook|hotmail|icloud|live|msn)\.(com|co\.uk|gr|cy)$/;
@@ -145,14 +149,13 @@
       }
     });
 
-    // --- 3. LOGIC ---
     function sendOTP() {
-      // Force validation check before proceeding
+      // Trigger checks
       iPhone.dispatchEvent(new Event('input'));
       iEmail.dispatchEvent(new Event('input'));
 
       if(iPhone.classList.contains('invalid') || iEmail.classList.contains('invalid')) {
-        return; // Stop if errors exist
+        return;
       }
 
       generatedOTP = Math.floor(1000 + Math.random() * 9000); 
@@ -167,10 +170,10 @@
       const inputOTP = document.getElementById('u-otp').value;
       if (parseInt(inputOTP) === generatedOTP) {
         const user = {
-          name: "Guest Customer", // Default since we removed name input
+          name: "Guest",
           email: iEmail.value,
           phone: iPhone.value,
-          address: "Not Provided" // Default since we removed address input
+          address: "Not Provided"
         };
         localStorage.setItem('alphaUser', JSON.stringify(user));
         window.location.href = 'shop.html';

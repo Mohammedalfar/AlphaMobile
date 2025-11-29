@@ -1,4 +1,4 @@
-/* global.js - Final Fixes: Lang Persistence & Profile Logic */
+/* global.js - Final Fixes: Links & Lang Persistence */
 
 // --- 1. CONFIGURATION ---
 const currencies = {
@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const currSelector = document.getElementById('currency-selector');
   if(currSelector) currSelector.value = currentCurrency;
 
-  // --- FIX: Restore Language Button Text ---
   const savedCode = localStorage.getItem('langCode') || 'US';
   const savedName = localStorage.getItem('langName') || 'English';
   
@@ -145,14 +144,15 @@ window.updateProfileMenu = function() {
   
   if(user) {
     menu.innerHTML = `
-      <div style="padding:10px; font-weight:600; color:var(--text); border-bottom:1px solid var(--border); margin-bottom:5px;">Hi, ${user.name.split(' ')[0]}</div>
-      <div class="profile-option" onclick="window.location.href='shop.html'">My Orders (WhatsApp)</div>
+      <div style="padding:10px; font-weight:600; color:var(--text); border-bottom:1px solid var(--border); margin-bottom:5px;">Hi, Guest</div>
+      <div class="profile-option" onclick="window.location.href='shop.html'">My Orders</div>
       <div class="profile-option" onclick="logoutUser()" style="color:#ef4444">Logout</div>
     `;
   } else {
+    // FIX: Distinct links for Login vs Register
     menu.innerHTML = `
-      <div class="profile-option" onclick="window.location.href='login.html'">Login</div>
-      <div class="profile-option" onclick="window.location.href='login.html'">Register</div>
+      <div class="profile-option" onclick="window.location.href='login.html?mode=login'">Login</div>
+      <div class="profile-option" onclick="window.location.href='login.html?mode=register'">Register</div>
     `;
   }
 }
@@ -164,9 +164,7 @@ window.logoutUser = function() {
 }
 
 document.addEventListener('click', (e) => {
-  // Close profile menu if clicked outside
   if (!e.target.closest('.profile-btn')) document.getElementById('profile-menu')?.classList.remove('open');
-  // Close lang menu if clicked outside
   if (!e.target.closest('.lang-dropdown')) document.getElementById('lang-menu')?.classList.remove('open');
 });
 
