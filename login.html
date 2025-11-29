@@ -8,60 +8,203 @@
   <style>
     :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
-    body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; }
     
-    /* DARK MODE FIX */
-    input, select, textarea, button { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; transition:0.3s; }
     
-    .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+    .login-card { background: var(--card); padding: 40px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+    
     h1 { margin-top: 0; text-align: center; }
-    p { text-align: center; color: var(--muted); margin-bottom: 30px; }
+    p { text-align: center; color: var(--muted); margin-bottom: 30px; font-size: 14px; }
     
-    label { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: block; }
-    input { width: 100%; padding: 16px; margin-bottom: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; box-sizing: border-box; }
+    .form-group { margin-bottom: 16px; }
+    label { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block; color: var(--text); }
     
-    .btn-login { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.2s; }
-    .btn-login:hover { transform: scale(1.02); }
+    /* Input Styling & Dark Mode Fix */
+    input, select, textarea { 
+      width: 100%; padding: 14px; border-radius: 12px; 
+      border: 1px solid var(--border); 
+      background: var(--bg); color: var(--text); 
+      font-family: inherit; box-sizing: border-box; 
+      font-size: 14px; outline: none; transition: 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
     
-    .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); text-decoration: none; font-size: 14px; }
+    .btn-action { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.2s; margin-top: 10px; }
+    .btn-action:hover { transform: scale(1.02); opacity: 0.9; }
+    
+    .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); text-decoration: none; font-size: 13px; cursor: pointer;}
+
+    /* OTP Screen (Hidden by default) */
+    .step-screen { display: none; animation: fadeIn 0.3s ease; }
+    .step-screen.active { display: block; }
+
+    .otp-input { letter-spacing: 4px; font-size: 24px; text-align: center; font-weight: 700; }
+    
+    .error-msg { color: #ef4444; font-size: 12px; margin-top: 4px; display: none; font-weight: 600;}
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
   <div class="login-card">
-    <h1>Details Required</h1>
-    <p>Please enter your details to sign in.</p>
+    
+    <div id="step-1" class="step-screen active">
+      <h1>Welcome</h1>
+      <p>Enter your details to verify your account.</p>
 
-    <label>Full Name</label>
-    <input type="text" id="u-name" placeholder="John Doe">
+      <div class="form-group">
+        <label>Full Name (First & Last)</label>
+        <input type="text" id="u-name" placeholder="e.g. John Doe">
+        <div class="error-msg" id="err-name">Please enter both First and Last name.</div>
+      </div>
 
-    <label>Phone Number</label>
-    <input type="tel" id="u-phone" placeholder="+357 ...">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="u-email" placeholder="john@gmail.com">
+        <div class="error-msg" id="err-email">Please use a valid provider (Gmail, Outlook, Yahoo, iCloud).</div>
+      </div>
 
-    <label>City & Address</label>
-    <input type="text" id="u-address" placeholder="Nicosia, 123 Street">
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="u-phone" value="+357 ">
+        <div class="error-msg" id="err-phone">Invalid phone number length.</div>
+      </div>
 
-    <button class="btn-login" onclick="saveAndContinue()">Save & Continue</button>
-    <a href="shop.html" class="back-link">Cancel</a>
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1">
+          <label>City</label>
+          <select id="u-city">
+            <option value="" disabled selected>Select...</option>
+            <option value="Nicosia">Nicosia</option>
+            <option value="Limassol">Limassol</option>
+            <option value="Larnaca">Larnaca</option>
+            <option value="Paphos">Paphos</option>
+            <option value="Famagusta">Famagusta</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1.5">
+          <label>Address Details</label>
+          <input type="text" id="u-address" placeholder="Street, Apt, etc.">
+        </div>
+      </div>
+
+      <button class="btn-action" onclick="sendOTP()">Send Verification Code</button>
+      <a href="shop.html" class="back-link">Cancel</a>
+    </div>
+
+    <div id="step-2" class="step-screen">
+      <h1>Verify Email</h1>
+      <p>We sent a code to <span id="display-email" style="color:var(--pistachio); font-weight:700"></span></p>
+      
+      <div class="form-group">
+        <label style="text-align:center">Enter 4-Digit OTP</label>
+        <input type="number" id="u-otp" class="otp-input" placeholder="0000">
+        <div class="error-msg" id="err-otp">Incorrect code. Please try again.</div>
+      </div>
+
+      <button class="btn-action" onclick="verifyOTP()">Verify & Login</button>
+      <div class="back-link" onclick="goBack()">Wrong email? Go back</div>
+    </div>
+
   </div>
 
   <script>
-    // Apply theme
+    // --- 1. CONFIG & INIT ---
+    // Apply Dark Mode immediately to avoid flash
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    function saveAndContinue() {
-      const name = document.getElementById('u-name').value;
-      const phone = document.getElementById('u-phone').value;
-      const address = document.getElementById('u-address').value;
+    let generatedOTP = null;
 
-      if(!name || !phone || !address) return alert("Please fill in all fields.");
+    // --- 2. PHONE AUTO-FILL LOGIC ---
+    const phoneInput = document.getElementById('u-phone');
+    phoneInput.addEventListener('input', function(e) {
+      if (!this.value.startsWith('+357 ')) {
+        this.value = '+357 ' + this.value.replace('+357 ', '').replace('+357', '');
+      }
+    });
+    phoneInput.addEventListener('focus', function() {
+      if(this.value === '') this.value = '+357 ';
+    });
 
-      const user = { name, phone, address };
-      localStorage.setItem('alphaUser', JSON.stringify(user));
+    // --- 3. VALIDATION & SEND OTP ---
+    function sendOTP() {
+      // Clear errors
+      document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+      let isValid = true;
 
-      // Go back to the shop
-      window.location.href = 'shop.html';
+      // A. Name Check (Must have space)
+      const name = document.getElementById('u-name').value.trim();
+      if (!name.includes(' ') || name.split(' ').length < 2) {
+        document.getElementById('err-name').style.display = 'block';
+        isValid = false;
+      }
+
+      // B. Email Check (Famous providers only)
+      const email = document.getElementById('u-email').value.trim().toLowerCase();
+      // Regex for standard domains
+      const validDomains = /@(gmail|yahoo|outlook|hotmail|icloud|live|msn)\.(com|co\.uk|gr|cy)$/;
+      if (!validDomains.test(email)) {
+        document.getElementById('err-email').style.display = 'block';
+        isValid = false;
+      }
+
+      // C. Phone Check
+      const phone = phoneInput.value.replace('+357 ', '');
+      if (phone.length < 8) { // Basic length check for Cyprus
+        document.getElementById('err-phone').style.display = 'block';
+        isValid = false;
+      }
+
+      // D. Address Check
+      const city = document.getElementById('u-city').value;
+      const addr = document.getElementById('u-address').value;
+      if (!city || !addr) {
+        alert("Please fill in City and Address details.");
+        isValid = false;
+      }
+
+      if (!isValid) return;
+
+      // --- SIMULATE SENDING OTP ---
+      generatedOTP = Math.floor(1000 + Math.random() * 9000); // Generate 4 digit code
+      
+      // In a real app, this connects to a backend. 
+      // For this demo, we alert it so you can "receive" it.
+      alert(`[DEMO] Your OTP Code is: ${generatedOTP}`);
+      
+      // Switch Screens
+      document.getElementById('display-email').innerText = email;
+      document.getElementById('step-1').classList.remove('active');
+      document.getElementById('step-2').classList.add('active');
+    }
+
+    // --- 4. VERIFY OTP ---
+    function verifyOTP() {
+      const inputOTP = document.getElementById('u-otp').value;
+      if (parseInt(inputOTP) === generatedOTP) {
+        // SUCCESS
+        const user = {
+          name: document.getElementById('u-name').value,
+          email: document.getElementById('u-email').value,
+          phone: document.getElementById('u-phone').value,
+          address: `${document.getElementById('u-address').value}, ${document.getElementById('u-city').value}`
+        };
+        
+        localStorage.setItem('alphaUser', JSON.stringify(user));
+        
+        // Redirect to shop
+        window.location.href = 'shop.html';
+      } else {
+        // FAIL
+        document.getElementById('err-otp').style.display = 'block';
+      }
+    }
+
+    function goBack() {
+      document.getElementById('step-2').classList.remove('active');
+      document.getElementById('step-1').classList.add('active');
     }
   </script>
 </body>

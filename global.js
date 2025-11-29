@@ -1,4 +1,4 @@
-/* global.js - Final Fixes & Profile Logic */
+/* global.js - Final Fixes: Lang Persistence & Profile Logic */
 
 // --- 1. CONFIGURATION ---
 const currencies = {
@@ -118,6 +118,13 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const currSelector = document.getElementById('currency-selector');
   if(currSelector) currSelector.value = currentCurrency;
+
+  // --- FIX: Restore Language Button Text ---
+  const savedCode = localStorage.getItem('langCode') || 'US';
+  const savedName = localStorage.getItem('langName') || 'English';
+  
+  if(document.getElementById('current-code')) document.getElementById('current-code').innerText = savedCode;
+  if(document.getElementById('current-name')) document.getElementById('current-name').innerText = savedName;
   
   // Init
   window.applyLanguage(currentLang);
@@ -175,10 +182,11 @@ window.changeLang = function(lang, code, name) {
   localStorage.setItem('langCode', code);
   localStorage.setItem('langName', name);
   
-  window.applyLanguage(lang);
-  document.getElementById('lang-menu').classList.remove('open');
   document.getElementById('current-code').innerText = code;
   document.getElementById('current-name').innerText = name;
+
+  window.applyLanguage(lang);
+  document.getElementById('lang-menu').classList.remove('open');
 }
 
 window.applyLanguage = function(lang) {
