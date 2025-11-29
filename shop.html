@@ -42,7 +42,7 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); justify-content: center; gap: 24px; padding-bottom: 80px; }
     .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; height: 100%; max-width: 380px; margin: 0 auto; width: 100%; }
     .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-    .product-img { height: 280px; background: #f8fafc; border-radius: 16px; display: grid; place-items: center; overflow: hidden; padding: 20px; }
+    .product-img { height: 280px; background: var(--bg); border-radius: 16px; display: grid; place-items: center; overflow: hidden; padding: 20px; }
     .product-img img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s; }
     .product-card:hover .product-img img { transform: scale(1.05); }
     .btn-buy { width: 100%; padding: 14px; background: var(--text); color: var(--bg); border: none; border-radius: 99px; font-weight: 700; cursor: pointer; margin-top: auto; }
@@ -66,19 +66,19 @@
     }
     .modal-backdrop.active .modal-content { transform: scale(1); }
 
-    .modal-img-col { flex: 1.2; min-width: 300px; background: #fbfbfd; padding: 60px; display: grid; place-items: center; }
+    .modal-img-col { flex: 1.2; min-width: 300px; background: var(--bg); padding: 60px; display: grid; place-items: center; }
     .modal-img-col img { width: 100%; max-width: 320px; object-fit: contain; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15)); }
     
     .modal-info-col { flex: 1; min-width: 300px; padding: 50px; display: flex; flex-direction: column; position: relative; overflow-y: auto;}
     
-    /* Fixed Close Button Z-Index */
+    /* Fixed Close Button Visibility in Dark Mode */
     .close-modal { 
       position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; 
-      background: #f1f5f9; border: none; border-radius: 50%; font-size: 20px; 
+      background: var(--bg); border: 1px solid var(--border); border-radius: 50%; font-size: 20px; 
       cursor: pointer; color: var(--text); display: grid; place-items: center; transition: 0.2s; 
-      z-index: 50; /* Ensure it's clickable */
+      z-index: 50; 
     }
-    .close-modal:hover { background: #e2e8f0; }
+    .close-modal:hover { background: var(--border); }
 
     .opt-section { margin-bottom: 24px; }
     .opt-title { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -102,8 +102,10 @@
     .modal-footer { margin-top: auto; padding-top: 30px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .total-lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
     .final-price { font-size: 32px; font-weight: 900; color: var(--text); letter-spacing: -1px; }
-    .modal-add-btn { background: #0f172a; color: white; border: none; padding: 18px 40px; border-radius: 99px; font-weight: 700; font-size: 16px; cursor: pointer; transition: transform 0.2s; }
-    .modal-add-btn:hover { transform: scale(1.05); background: var(--pistachio); }
+    
+    /* Fixed Button Visibility in Dark Mode */
+    .modal-add-btn { background: var(--pistachio); color: white; border: none; padding: 18px 40px; border-radius: 99px; font-weight: 700; font-size: 16px; cursor: pointer; transition: transform 0.2s; }
+    .modal-add-btn:hover { transform: scale(1.05); opacity: 0.9; }
 
     /* Intro */
     .intro-overlay { position: fixed; inset: 0; z-index: 100000; background: #050505; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.5s ease; opacity: 1; visibility: visible; }
@@ -256,7 +258,6 @@
         grid.innerHTML += card;
       });
       
-      // Update currency & lang
       const curr = localStorage.getItem('currency') || 'EUR';
       if(typeof changeCurrency === 'function') window.applyCurrency(curr);
       
@@ -264,7 +265,6 @@
       if(typeof applyLanguage === 'function') applyLanguage(lang);
     }
     
-    // --- MODAL LOGIC (FIXED) ---
     window.openModal = function(id) {
       const p = allProducts.find(x => x.id === id);
       if(!p) return;
@@ -274,7 +274,6 @@
       document.getElementById('m-img').src = p.image;
       document.getElementById('m-title').innerText = p.name;
       
-      // Safe check for description
       const desc = p.desc ? p.desc : "No description available.";
       document.getElementById('m-desc').innerText = desc;
       
@@ -313,9 +312,8 @@
         container.innerHTML += html;
       }
 
-      // Fallback if NO options exist
       if(!hasOptions) {
-        container.innerHTML = `<p style="color:var(--muted); font-size:14px; background:#f1f5f9; padding:10px; border-radius:10px;">Standard Configuration.</p>`;
+        container.innerHTML = `<p style="color:var(--muted); font-size:14px; background:var(--bg); border:1px solid var(--border); padding:10px; border-radius:10px;">Standard Configuration.</p>`;
       }
 
       updateModalPrice();
@@ -337,17 +335,13 @@
 
     function updateModalPrice() {
       const total = currentSel.base + currentSel.add;
-      const curr = localStorage.getItem('currency') || 'EUR';
-      
-      // Calculate Price based on currency
-      // We assume global.js has currencies object, but it's not exported.
-      // Simple fix: Show EUR base in modal, or try to use global helper if available.
-      // For stability, we just show EUR here, or rely on global apply if we refreshed.
-      // Better:
       document.getElementById('m-price').innerText = "€" + total;
+      
+      // Update with current currency if global helper exists
+      const curr = localStorage.getItem('currency') || 'EUR';
+      if(window.applyCurrency) window.applyCurrency(curr);
     }
 
-    // Explicit Close Function
     document.getElementById('btn-close-modal').onclick = function() {
       document.getElementById('productModal').classList.remove('active');
     };
