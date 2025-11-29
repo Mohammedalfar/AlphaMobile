@@ -101,21 +101,39 @@
     const iEmail = document.getElementById('u-email');
     const iPhone = document.getElementById('u-phone');
 
-    iPhone.addEventListener('input', function(e) {
-      let val = this.value;
-      const err = document.getElementById('err-phone');
+    // --- LOCK THE +357 PREFIX ---
+    const PREFIX = "+357 ";
+    
+    // 1. Block Backspace/Delete on prefix
+    iPhone.addEventListener('keydown', function(e) {
+      if ((this.selectionStart < PREFIX.length) && (e.key === 'Backspace' || e.key === 'Delete')) {
+        e.preventDefault(); 
+      }
+      // Also prevent moving cursor before prefix
+      if (this.selectionStart < PREFIX.length && e.key === 'ArrowLeft') {
+         e.preventDefault();
+      }
+    });
 
-      if(!val.startsWith('+357')) {
-        this.classList.add('invalid');
-        this.classList.remove('valid');
-        err.innerText = "Only Cyprus (+357) numbers allowed.";
-        err.classList.add('show');
-        return; 
+    // 2. Force cursor to end of prefix if clicked inside
+    iPhone.addEventListener('click', function() {
+      if (this.selectionStart < PREFIX.length) {
+        this.setSelectionRange(PREFIX.length, PREFIX.length);
+      }
+    });
+
+    // 3. Strict Input Enforcement
+    iPhone.addEventListener('input', function(e) {
+      if (!this.value.startsWith(PREFIX)) {
+        // If user managed to mess it up (e.g. select all + delete), restore it
+        this.value = PREFIX + this.value.replace(PREFIX.trim(), '').replace('+357', '').replace(/\D/g,'').trim();
       }
 
+      let val = this.value;
+      const err = document.getElementById('err-phone');
       const numbersOnly = val.replace(/[^0-9]/g, '');
       
-      if(numbersOnly.length === 11) {
+      if(numbersOnly.length === 11) { // 357 + 8 digits
         this.classList.remove('invalid');
         this.classList.add('valid');
         err.classList.remove('show');
