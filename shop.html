@@ -6,7 +6,6 @@
   <title>Alpha Mobile • Shop</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    /* Variables */
     :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     * { box-sizing: border-box; }
@@ -25,9 +24,7 @@
     .cart-count { position: absolute; top: -5px; right: -5px; background: var(--pistachio); color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
     .theme-toggle{ width:42px;height:42px;border-radius:50%;background:var(--bg); border:1px solid var(--border); display:grid;place-items:center; cursor: pointer;}
     [data-theme="dark"] .sun { display: none; } [data-theme="light"] .moon { display: none; }
-    .control-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none; margin: 0; height: 36px; font-family: 'Inter', sans-serif; }
 
-    /* Lang Menu */
     .lang-dropdown { position: relative; }
     .lang-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-weight: 600; font-family: inherit; transition: all 0.2s; cursor: pointer;}
     .lang-menu { position: absolute; top: 120%; right: 0; width: 180px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: none; flex-direction: column; gap: 4px; z-index: 200; max-height: 300px; overflow-y: auto; }
@@ -35,10 +32,27 @@
     .lang-option { padding: 8px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; transition: background 0.2s; }
     .lang-option:hover { background: rgba(147,197,115,.1); }
     html[dir="rtl"] .lang-menu { right: auto; left: 0; }
+    .control-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none; margin: 0; height: 36px; font-family: 'Inter', sans-serif; }
 
-    /* Centered Grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); justify-content: center; gap: 24px; padding-bottom: 80px; }
-    .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; height: 100%; width: 100%; max-width: 380px; margin: 0 auto; }
+    /* CENTERED GRID */
+    .grid { 
+      display: grid; 
+      /* Auto-fill prevents stretching, center alignment fixes gaps */
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+      justify-content: center; 
+      gap: 24px; 
+      padding-bottom: 80px; 
+    }
+    
+    .product-card { 
+      background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; 
+      display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; 
+      height: 100%;
+      /* Critical for centering single items */
+      max-width: 380px; 
+      margin: 0 auto; 
+      width: 100%;
+    }
     .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
     .product-img { height: 280px; background: #f8fafc; border-radius: 16px; display: grid; place-items: center; overflow: hidden; padding: 20px; }
     .product-img img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s; }
@@ -46,7 +60,12 @@
     .btn-buy { width: 100%; padding: 14px; background: var(--text); color: var(--bg); border: none; border-radius: 99px; font-weight: 700; cursor: pointer; margin-top: auto; }
     .btn-buy:hover { background: var(--pistachio); color: white; }
     
-    /* APPLE STYLE MODAL */
+    .filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+    .filter-btn { padding: 12px 24px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .filter-btn.active { background: var(--pistachio); color: white; border-color: var(--pistachio); }
+    .loader { text-align: center; width: 100%; grid-column: 1 / -1; padding: 50px; color: var(--muted); }
+
+    /* CUSTOMIZATION MODAL */
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 5000; display: none; place-items: center; backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s; }
     .modal-backdrop.active { display: grid; opacity: 1; }
     .modal-content { background: var(--card); width: 95%; max-width: 900px; border-radius: 32px; overflow: hidden; display: flex; flex-wrap: wrap; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
@@ -57,7 +76,6 @@
     
     .opt-section-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
     .opt-grid { display: flex; gap: 12px; flex-wrap: wrap; }
-    /* Apple-like Option Buttons */
     .opt-btn { 
       padding: 16px 20px; border: 1px solid var(--border); border-radius: 12px; 
       cursor: pointer; background: var(--bg); color: var(--text); font-weight: 600; 
@@ -68,16 +86,14 @@
     .opt-btn:hover { border-color: var(--pistachio); }
     .opt-btn.active { border: 2px solid var(--pistachio); background: rgba(147,197,115,0.05); color: var(--pistachio); }
     
-    /* Colors as Circles */
     .color-grid { display: flex; gap: 12px; }
     .color-btn { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; position: relative;}
     .color-btn.active { border-color: var(--text); transform: scale(1.1); }
     
     .final-price-area { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .final-price { font-size: 28px; font-weight: 800; color: var(--text); }
-    
-    /* Loading & Intro */
-    .loader { text-align: center; width: 100%; grid-column: 1 / -1; padding: 50px; color: var(--muted); }
+
+    /* Intro */
     .intro-overlay { position: fixed; inset: 0; z-index: 100000; background: #050505; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.5s ease; opacity: 1; visibility: visible; }
     .intro-logo { font-size: 80px; font-weight: 900; color: transparent; background: linear-gradient(135deg, var(--pistachio), #A8D5A2); -webkit-background-clip: text; background-clip: text; animation: logoIn 1s ease forwards; }
     .intro-line { width: 0; height: 2px; background: var(--pistachio); margin-top: 20px; animation: lineExpand 0.8s ease forwards 0.5s; }
@@ -97,16 +113,10 @@
       <button class="close-modal" onclick="closeModal()">×</button>
       <div class="modal-img-col"><img id="m-img" src=""></div>
       <div class="modal-info-col">
-        <div>
-          <span style="font-size:12px; font-weight:700; color:#ef4444;" id="m-tag">NEW</span>
-          <h2 id="m-title" style="margin:5px 0; font-size:32px;">iPhone 15 Pro</h2>
-        </div>
-        
-        <div id="opt-container"></div> <div class="final-price-area">
-          <div>
-            <span style="display:block; font-size:12px; color:var(--muted)">Total</span>
-            <span class="final-price" id="m-price">€999</span>
-          </div>
+        <div><h2 id="m-title" style="margin:5px 0; font-size:32px;">Product</h2></div>
+        <div id="opt-container"></div>
+        <div class="final-price-area">
+          <div><span style="display:block; font-size:12px; color:var(--muted)">Total</span><span class="final-price" id="m-price">€0</span></div>
           <button class="btn-buy" id="m-add-btn" style="width:auto; padding:16px 32px; border-radius:99px; margin:0;">Add to Cart</button>
         </div>
       </div>
@@ -174,7 +184,10 @@
   </div>
 
   <script src="global.js"></script>
-  <script>setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500);</script>
+  
+  <script>
+    setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500);
+  </script>
 
   <script type="module">
     import { getProducts } from './db.js';
@@ -202,7 +215,6 @@
       }
       
       items.forEach(p => {
-        // ALWAYS use Modal for adding to cart now to ensure customization
         const card = `
           <div class="product-card">
             <div class="product-img"><img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'"></div>
@@ -220,12 +232,15 @@
       });
       
       const curr = localStorage.getItem('currency') || 'EUR';
-      if(typeof changeCurrency === 'function') changeCurrency(curr);
+      if(typeof changeCurrency === 'function') {
+         // IMPORTANT: use applyCurrency here to avoid loop
+         window.applyCurrency(curr);
+      }
+      
       const lang = localStorage.getItem('lang') || 'en';
       if(typeof applyLanguage === 'function') applyLanguage(lang);
     }
     
-    // --- MODAL LOGIC (New Design) ---
     window.openModal = function(id) {
       const p = allProducts.find(x => x.id === id);
       if(!p) return;
@@ -239,20 +254,17 @@
       const container = document.getElementById('opt-container');
       container.innerHTML = '';
 
-      // Colors (Circles)
       if(p.options && p.options.colors && p.options.colors.length > 0) {
         let html = `<div><span class="opt-section-title">Color</span><div class="color-grid">`;
         p.options.colors.forEach((c, idx) => {
           if(idx===0) currentSel.color = c;
-          // Simple check for hex or name
-          const bg = c.includes('#') ? c : (c.toLowerCase() === 'natural titanium' ? '#d0cec7' : c);
+          const bg = c.includes('#') ? c : (c.toLowerCase() === 'natural' ? '#d0cec7' : c);
           html += `<div class="color-btn ${idx===0?'active':''}" style="background:${bg}" title="${c}" onclick="selOpt(this, 'color', '${c}')"></div>`;
         });
         html += `</div></div>`;
         container.innerHTML += html;
       }
 
-      // Storage (Big Buttons)
       if(p.options && p.options.storage && p.options.storage.length > 0) {
         let html = `<div style="margin-top:20px;"><span class="opt-section-title">Storage</span><div class="opt-grid">`;
         p.options.storage.forEach((s, idx) => {
@@ -297,17 +309,19 @@
       const total = currentSel.base + currentSel.add;
       const desc = [currentSel.color, currentSel.storage].filter(Boolean).join(', ');
       
-      // Call Global addToCart which forces UI update
       addToCart(p.id, total, p.name, p.image, desc);
       closeModal();
     }
 
-    // Filter Listeners
     document.getElementById('f-all').onclick = () => { setActive('f-all'); renderShop('all'); };
     document.getElementById('f-phone').onclick = () => { setActive('f-phone'); renderShop('phone'); };
     document.getElementById('f-audio').onclick = () => { setActive('f-audio'); renderShop('audio'); };
     document.getElementById('f-cable').onclick = () => { setActive('f-cable'); renderShop('cable'); };
-    function setActive(id) { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    
+    function setActive(id) { 
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); 
+      document.getElementById(id).classList.add('active'); 
+    }
     
     initShop();
   </script>
