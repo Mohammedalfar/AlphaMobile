@@ -7,24 +7,80 @@
   <style>
     :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #93C572; --border: #334155; }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px; display:flex; justify-content:center;}
+    
+    /* LOGIN SCREEN */
+    #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: grid; place-items: center; }
+    .login-box { background: var(--card); padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 100%; max-width: 320px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    
     input, select { width: 100%; padding: 12px; margin: 5px 0 15px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing:border-box;}
-    input[type="file"] { background: #334155; cursor: pointer; }
+    
     button { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: 700; color: white; border-radius: 8px; cursor: pointer; transition:0.2s;}
     button:hover { opacity: 0.9; }
-    .container { max-width: 900px; width: 100%; display: grid; grid-template-columns: 1fr 2fr; gap:30px; }
+    button:disabled { background: #64748b; cursor: wait; }
+
+    .container { max-width: 900px; width: 100%; display: none; grid-template-columns: 1fr 2fr; gap:30px; }
+    .container.active { display: grid; }
+    
     .card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
     .item-row { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid var(--border); }
     .item-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #333; }
     .btn-sm { width:auto; padding:5px 12px; font-size:12px; margin-left:5px;}
     .hint { font-size: 11px; color: #94a3b8; margin-top: -10px; margin-bottom: 10px; display: block; }
+
+    /* --- DRAG & DROP STYLES --- */
+    .drop-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 15px;
+      transition: 0.2s;
+      background: rgba(255,255,255,0.02);
+    }
+    .drop-area.dragover {
+      border-color: var(--accent);
+      background: rgba(147,197,115,0.1);
+    }
+    .drop-area p { margin: 0; color: #94a3b8; font-size: 14px; pointer-events: none; }
+    .drop-area svg { width: 32px; height: 32px; color: #94a3b8; margin-bottom: 10px; pointer-events: none; }
+    
+    /* Hide real input but keep it working */
+    #p-file { display: none; }
+    
+    #preview-container img {
+      width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;
+      border: 1px solid var(--border); display: none;
+    }
+    #preview-container img.show { display: block; }
+    
+    @media(max-width: 768px) { .container { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div id="login-screen">
+    <div class="login-box">
+      <h2 style="margin-top:0; color:#93C572;">Alpha Admin</h2>
+      <p style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Restricted Access</p>
+      <input type="text" id="admin-user" placeholder="Username">
+      <input type="password" id="admin-pass" placeholder="Password">
+      <button onclick="checkLogin()">Login</button>
+      <p id="error-msg" style="color:#ef4444; font-size:12px; margin-top:15px; display:none;">Invalid Credentials</p>
+    </div>
+  </div>
+
+  <div class="container" id="dashboard">
+    
     <div class="card">
-      <h3 style="margin-top:0" id="form-title">Add New Product</h3>
-      <input type="hidden" id="p-id"> <label>Name</label> <input type="text" id="p-name">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="margin:0" id="form-title">Add Product</h3>
+        <button class="btn-sm" style="background:#334155" onclick="logout()">Logout</button>
+      </div>
+      
+      <input type="hidden" id="p-id"> 
+      
+      <label>Name</label> <input type="text" id="p-name" placeholder="iPhone 15">
       <label>Category</label>
       <select id="p-type">
         <option value="phone">Phone</option>
@@ -35,8 +91,15 @@
       <label>Colors</label> <input type="text" id="p-colors" placeholder="Red, Blue">
       <label>Storage (GB:€)</label> <input type="text" id="p-storage" placeholder="128GB, 256GB:50">
       <label>Stock</label> <input type="number" id="p-stock">
-      <label>Photo</label> <input type="file" id="p-file">
-      <div id="img-preview" style="font-size:12px; color:#aaa; margin-bottom:10px;"></div>
+      
+      <label>Photo</label>
+      <div class="drop-area" id="drop-area">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        <p>Drag & Drop or Click to Upload</p>
+      </div>
+      <input type="file" id="p-file" accept="image/*">
+      
+      <div id="preview-container"><img id="img-preview-box"></div>
       
       <button id="saveBtn">Save Product</button>
       <button id="cancelBtn" style="background:#64748b; display:none; margin-top:10px;" onclick="resetForm()">Cancel Edit</button>
@@ -54,28 +117,116 @@
   <script type="module">
     import { getProducts, addProductToDB, updateProductInDB, deleteProductFromDB, uploadImage } from './db.js';
 
+    // --- CREDENTIALS ---
+    const admins = [
+      { user: "AhmadSleman", pass: "Ahmad@Sleman2009" },
+      { user: "Alfar", pass: "Alfar@Mohammed2010" }
+    ];
+
+    window.checkLogin = function() {
+      const u = document.getElementById('admin-user').value;
+      const p = document.getElementById('admin-pass').value;
+      const valid = admins.find(a => a.user === u && a.pass === p);
+      if(valid) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').classList.add('active');
+        sessionStorage.setItem('alphaAdmin', 'true');
+        load();
+      } else {
+        document.getElementById('error-msg').style.display = 'block';
+      }
+    }
+
+    window.logout = function() {
+      sessionStorage.removeItem('alphaAdmin');
+      location.reload();
+    }
+
+    if(sessionStorage.getItem('alphaAdmin')) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').classList.add('active');
+      load();
+    }
+
+    // --- DRAG & DROP LOGIC ---
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('p-file');
+    const previewBox = document.getElementById('img-preview-box');
+
+    // Click triggers hidden input
+    dropArea.addEventListener('click', () => fileInput.click());
+
+    // Drag Events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
+      dropArea.addEventListener(e, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(e => {
+      dropArea.addEventListener(e, () => dropArea.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(e => {
+      dropArea.addEventListener(e, () => dropArea.classList.remove('dragover'), false);
+    });
+
+    // Handle Drop
+    dropArea.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      fileInput.files = files; // Sync with input
+      handleFiles(files);
+    });
+
+    // Handle Click Select
+    fileInput.addEventListener('change', function() {
+      handleFiles(this.files);
+    });
+
+    function handleFiles(files) {
+      if(files.length > 0) {
+        const file = files[0];
+        // Create local preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewBox.src = e.target.result;
+          previewBox.classList.add('show');
+          dropArea.querySelector('p').innerText = file.name;
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // --- PRODUCT LOGIC ---
     let allProducts = [];
 
     async function load() {
       const list = document.getElementById('list-area');
       list.innerHTML = "Fetching...";
-      allProducts = await getProducts();
-      list.innerHTML = "";
-      
-      allProducts.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'item-row';
-        div.innerHTML = `
-          <img src="${p.image}" class="item-img">
-          <div style="flex:1"><b>${p.name}</b><br><small>€${p.price} • Stock: ${p.stock}</small></div>
-          <button class="btn-sm" style="background:#3b82f6" onclick="editItem('${p.id}')">Edit</button>
-          <button class="btn-sm" style="background:#ef4444" onclick="delItem('${p.id}')">Del</button>
-        `;
-        list.appendChild(div);
-      });
+      try {
+        allProducts = await getProducts();
+        list.innerHTML = "";
+        
+        if(allProducts.length === 0) list.innerHTML = "Database empty.";
+
+        allProducts.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'item-row';
+          div.innerHTML = `
+            <img src="${p.image}" class="item-img">
+            <div style="flex:1"><b>${p.name}</b><br><small>€${p.price} • Stock: ${p.stock}</small></div>
+            <button class="btn-sm" style="background:#3b82f6" onclick="editItem('${p.id}')">Edit</button>
+            <button class="btn-sm" style="background:#ef4444" onclick="delItem('${p.id}')">Del</button>
+          `;
+          list.appendChild(div);
+        });
+      } catch (err) { console.error(err); }
     }
 
-    // Expose functions to window
     window.editItem = (id) => {
       const p = allProducts.find(x => x.id === id);
       if(!p) return;
@@ -87,13 +238,16 @@
       document.getElementById('p-price').value = p.price;
       document.getElementById('p-stock').value = p.stock;
       
-      // Parse options back to string
       const c = p.options?.colors?.join(', ') || "";
       const s = p.options?.storage?.map(i => i.price ? `${i.size}:${i.price}` : i.size).join(', ') || "";
       
       document.getElementById('p-colors').value = c;
       document.getElementById('p-storage').value = s;
-      document.getElementById('img-preview').innerText = "Current Image: " + p.image.substring(0,30)+"...";
+      
+      // Show current image in preview
+      previewBox.src = p.image;
+      previewBox.classList.add('show');
+      dropArea.querySelector('p').innerText = "Change Image (Optional)";
       
       document.getElementById('saveBtn').innerText = "Update Product";
       document.getElementById('cancelBtn').style.display = "block";
@@ -108,14 +262,17 @@
       document.getElementById('p-id').value = "";
       document.getElementById('saveBtn').innerText = "Save Product";
       document.getElementById('cancelBtn').style.display = "none";
-      document.getElementById('img-preview').innerText = "";
+      
+      previewBox.src = "";
+      previewBox.classList.remove('show');
+      dropArea.querySelector('p').innerText = "Drag & Drop or Click to Upload";
+      
       document.querySelectorAll('input').forEach(i => i.value = "");
     };
 
     document.getElementById('saveBtn').addEventListener('click', async () => {
       const btn = document.getElementById('saveBtn');
       const id = document.getElementById('p-id').value;
-      const fileInput = document.getElementById('p-file');
       
       btn.innerText = "Processing...";
       btn.disabled = true;
@@ -159,8 +316,6 @@
       } catch (err) { alert(err.message); }
       finally { btn.innerText = id ? "Update Product" : "Save Product"; btn.disabled = false; }
     });
-
-    load();
   </script>
 </body>
 </html>
