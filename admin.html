@@ -5,23 +5,17 @@
   <title>Alpha Admin • Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* Nthn's Admin Styles */
     :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #93C572; --border: #334155; }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px; display:flex; justify-content:center;}
-    
     input, select { width: 100%; padding: 12px; margin: 5px 0 15px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing:border-box;}
     input[type="file"] { background: #334155; cursor: pointer; }
-    
     button { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: 700; color: white; border-radius: 8px; cursor: pointer; transition:0.2s;}
     button:hover { opacity: 0.9; }
-    button:disabled { background: #64748b; cursor: wait; }
-
     .container { max-width: 900px; width: 100%; display: grid; grid-template-columns: 1fr 2fr; gap:30px; }
     .card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
-    
     .item-row { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid var(--border); }
     .item-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #333; }
-    .del-btn { background:#ef4444; width:auto; padding:5px 12px; font-size:12px;}
+    .btn-sm { width:auto; padding:5px 12px; font-size:12px; margin-left:5px;}
     .hint { font-size: 11px; color: #94a3b8; margin-top: -10px; margin-bottom: 10px; display: block; }
   </style>
 </head>
@@ -29,138 +23,141 @@
 
   <div class="container">
     <div class="card">
-      <h3 style="margin-top:0">Add New Product</h3>
-      
-      <label>Name</label> 
-      <input type="text" id="p-name" placeholder="iPhone 15">
-      
+      <h3 style="margin-top:0" id="form-title">Add New Product</h3>
+      <input type="hidden" id="p-id"> <label>Name</label> <input type="text" id="p-name">
       <label>Category</label>
       <select id="p-type">
         <option value="phone">Phone</option>
         <option value="audio">Audio</option>
         <option value="cable">Cable</option>
-        <option value="charger">Charger</option>
       </select>
+      <label>Price (€)</label> <input type="number" id="p-price">
+      <label>Colors</label> <input type="text" id="p-colors" placeholder="Red, Blue">
+      <label>Storage (GB:€)</label> <input type="text" id="p-storage" placeholder="128GB, 256GB:50">
+      <label>Stock</label> <input type="number" id="p-stock">
+      <label>Photo</label> <input type="file" id="p-file">
+      <div id="img-preview" style="font-size:12px; color:#aaa; margin-bottom:10px;"></div>
       
-      <label>Base Price (€)</label> 
-      <input type="number" id="p-price" placeholder="999">
-      
-      <label>Colors (Comma Separated)</label>
-      <input type="text" id="p-colors" placeholder="Black, White, Blue">
-      
-      <label>Storage (Format: Size:ExtraPrice)</label>
-      <input type="text" id="p-storage" placeholder="128GB, 256GB:50, 512GB:100">
-      <span class="hint">Example: "256GB:50" adds €50 to base price.</span>
-
-      <label>Stock Qty</label> 
-      <input type="number" id="p-stock" value="5">
-      
-      <label>Photo</label>
-      <input type="file" id="p-file" accept="image/*">
-      
-      <button id="addBtn">Upload & Save</button>
+      <button id="saveBtn">Save Product</button>
+      <button id="cancelBtn" style="background:#64748b; display:none; margin-top:10px;" onclick="resetForm()">Cancel Edit</button>
     </div>
 
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0">Database Items</h3>
-        <a href="shop.html" target="_blank" style="color:#93C572; text-decoration:none; font-size:14px;">View Shop &rarr;</a>
+      <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+        <h3 style="margin:0">Items</h3>
+        <a href="shop.html" target="_blank" style="color:#93C572;">View Shop &rarr;</a>
       </div>
       <div id="list-area">Loading...</div>
     </div>
   </div>
 
   <script type="module">
-    import { getProducts, addProductToDB, deleteProductFromDB, uploadImage } from './db.js';
+    import { getProducts, addProductToDB, updateProductInDB, deleteProductFromDB, uploadImage } from './db.js';
 
-    // Load Data
+    let allProducts = [];
+
     async function load() {
       const list = document.getElementById('list-area');
       list.innerHTML = "Fetching...";
-      try {
-        const products = await getProducts();
-        
-        list.innerHTML = "";
-        if(products.length === 0) list.innerHTML = "Database is empty.";
-
-        products.forEach(p => {
-          const div = document.createElement('div');
-          div.className = 'item-row';
-          div.innerHTML = `
-            <img src="${p.image}" class="item-img">
-            <div style="flex:1"><b>${p.name}</b><br><small>€${p.price}</small></div>
-            <button class="del-btn" data-id="${p.id}">Delete</button>
-          `;
-          list.appendChild(div);
-        });
-
-        document.querySelectorAll('.del-btn').forEach(b => {
-          b.addEventListener('click', async (e) => {
-            if(confirm("Delete this product?")) {
-              await deleteProductFromDB(e.target.dataset.id);
-              load();
-            }
-          })
-        });
-      } catch (err) {
-        list.innerHTML = "Error loading data.";
-        console.error(err);
-      }
+      allProducts = await getProducts();
+      list.innerHTML = "";
+      
+      allProducts.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.innerHTML = `
+          <img src="${p.image}" class="item-img">
+          <div style="flex:1"><b>${p.name}</b><br><small>€${p.price} • Stock: ${p.stock}</small></div>
+          <button class="btn-sm" style="background:#3b82f6" onclick="editItem('${p.id}')">Edit</button>
+          <button class="btn-sm" style="background:#ef4444" onclick="delItem('${p.id}')">Del</button>
+        `;
+        list.appendChild(div);
+      });
     }
 
-    // Upload & Add
-    document.getElementById('addBtn').addEventListener('click', async () => {
-      const btn = document.getElementById('addBtn');
+    // Expose functions to window
+    window.editItem = (id) => {
+      const p = allProducts.find(x => x.id === id);
+      if(!p) return;
+      
+      document.getElementById('form-title').innerText = "Edit Product";
+      document.getElementById('p-id').value = p.id;
+      document.getElementById('p-name').value = p.name;
+      document.getElementById('p-type').value = p.type;
+      document.getElementById('p-price').value = p.price;
+      document.getElementById('p-stock').value = p.stock;
+      
+      // Parse options back to string
+      const c = p.options?.colors?.join(', ') || "";
+      const s = p.options?.storage?.map(i => i.price ? `${i.size}:${i.price}` : i.size).join(', ') || "";
+      
+      document.getElementById('p-colors').value = c;
+      document.getElementById('p-storage').value = s;
+      document.getElementById('img-preview').innerText = "Current Image: " + p.image.substring(0,30)+"...";
+      
+      document.getElementById('saveBtn').innerText = "Update Product";
+      document.getElementById('cancelBtn').style.display = "block";
+    };
+
+    window.delItem = async (id) => {
+      if(confirm("Delete?")) { await deleteProductFromDB(id); load(); }
+    };
+
+    window.resetForm = () => {
+      document.getElementById('form-title').innerText = "Add New Product";
+      document.getElementById('p-id').value = "";
+      document.getElementById('saveBtn').innerText = "Save Product";
+      document.getElementById('cancelBtn').style.display = "none";
+      document.getElementById('img-preview').innerText = "";
+      document.querySelectorAll('input').forEach(i => i.value = "");
+    };
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('saveBtn');
+      const id = document.getElementById('p-id').value;
       const fileInput = document.getElementById('p-file');
       
-      const name = document.getElementById('p-name').value;
-      const price = document.getElementById('p-price').value;
-      
-      if(!name || !price || fileInput.files.length === 0) {
-        return alert("Please fill Name, Price and select an Image.");
-      }
-
-      btn.innerText = "Uploading Image...";
+      btn.innerText = "Processing...";
       btn.disabled = true;
 
       try {
-        // 1. Process Options
+        let imageUrl = "";
+        // If editing and no new file, keep old image
+        if(id && fileInput.files.length === 0) {
+           const p = allProducts.find(x => x.id === id);
+           imageUrl = p.image;
+        } else if (fileInput.files.length > 0) {
+           imageUrl = await uploadImage(fileInput.files[0]);
+        } else {
+           throw new Error("Image required for new product");
+        }
+
         const colorStr = document.getElementById('p-colors').value;
         const storageStr = document.getElementById('p-storage').value;
-        
         const colors = colorStr ? colorStr.split(',').map(s => s.trim()) : [];
         const storage = storageStr ? storageStr.split(',').map(s => {
           const parts = s.split(':');
           return { size: parts[0].trim(), price: parts[1] ? Number(parts[1]) : 0 };
         }) : [];
 
-        // 2. Upload Image
-        const file = fileInput.files[0];
-        const imageUrl = await uploadImage(file);
-
-        // 3. Save to DB
-        btn.innerText = "Saving Data...";
-        
-        const newItem = {
-          name: name,
+        const data = {
+          name: document.getElementById('p-name').value,
           type: document.getElementById('p-type').value,
-          price: Number(price),
+          price: Number(document.getElementById('p-price').value),
           stock: Number(document.getElementById('p-stock').value),
           image: imageUrl,
           options: { colors, storage }
         };
 
-        await addProductToDB(newItem);
-        
-        alert("Success! Product is live.");
-        location.reload();
+        if(id) { await updateProductInDB(id, data); } 
+        else { await addProductToDB(data); }
 
-      } catch (error) {
-        console.error(error);
-        alert("Error: " + error.message);
-        btn.innerText = "Upload & Save";
-        btn.disabled = false;
-      }
+        alert("Saved!");
+        resetForm();
+        load();
+
+      } catch (err) { alert(err.message); }
+      finally { btn.innerText = id ? "Update Product" : "Save Product"; btn.disabled = false; }
     });
 
     load();
