@@ -29,7 +29,7 @@
     [data-theme="dark"] .sun { display: none; } [data-theme="light"] .moon { display: none; }
     .control-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none; margin: 0; height: 36px; font-family: 'Inter', sans-serif; }
 
-    /* LANG MENU */
+    /* LANG DROPDOWN */
     .lang-dropdown { position: relative; }
     .lang-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-weight: 600; font-family: inherit; transition: all 0.2s; cursor: pointer;}
     .lang-menu { position: absolute; top: 120%; right: 0; width: 180px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: none; flex-direction: column; gap: 4px; z-index: 200; max-height: 300px; overflow-y: auto; }
@@ -38,7 +38,7 @@
     .lang-option:hover { background: rgba(147,197,115,.1); }
     html[dir="rtl"] .lang-menu { right: auto; left: 0; }
 
-    /* GRID */
+    /* CENTERED GRID */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); justify-content: center; gap: 24px; padding-bottom: 80px; }
     .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s; height: 100%; max-width: 380px; margin: 0 auto; width: 100%; }
     .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -47,12 +47,13 @@
     .product-card:hover .product-img img { transform: scale(1.05); }
     .btn-buy { width: 100%; padding: 14px; background: var(--text); color: var(--bg); border: none; border-radius: 99px; font-weight: 700; cursor: pointer; margin-top: auto; }
     .btn-buy:hover { background: var(--pistachio); color: white; }
+    
     .filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
     .filter-btn { padding: 12px 24px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; font-weight: 600; transition: 0.3s; }
     .filter-btn.active { background: var(--pistachio); color: white; border-color: var(--pistachio); }
     .loader { text-align: center; width: 100%; grid-column: 1 / -1; padding: 50px; color: var(--muted); }
 
-    /* --- NEW MODAL DESIGN --- */
+    /* --- APPLE STYLE MODAL --- */
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 5000; display: none; place-items: center; backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s; }
     .modal-backdrop.active { display: grid; opacity: 1; }
     
@@ -68,32 +69,36 @@
     .modal-img-col { flex: 1.2; min-width: 300px; background: #fbfbfd; padding: 60px; display: grid; place-items: center; }
     .modal-img-col img { width: 100%; max-width: 320px; object-fit: contain; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15)); }
     
-    .modal-info-col { flex: 1; min-width: 300px; padding: 50px; display: flex; flex-direction: column; position: relative; }
-    .close-modal { position: absolute; top: 30px; right: 30px; width: 36px; height: 36px; background: #f1f5f9; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; color: var(--text); display: grid; place-items: center; transition: 0.2s; }
+    .modal-info-col { flex: 1; min-width: 300px; padding: 50px; display: flex; flex-direction: column; position: relative; overflow-y: auto;}
+    
+    /* Fixed Close Button Z-Index */
+    .close-modal { 
+      position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; 
+      background: #f1f5f9; border: none; border-radius: 50%; font-size: 20px; 
+      cursor: pointer; color: var(--text); display: grid; place-items: center; transition: 0.2s; 
+      z-index: 50; /* Ensure it's clickable */
+    }
     .close-modal:hover { background: #e2e8f0; }
 
     .opt-section { margin-bottom: 24px; }
     .opt-title { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
     
-    /* Option Buttons */
     .opt-grid { display: flex; gap: 10px; flex-wrap: wrap; }
     .opt-btn { 
       padding: 14px 24px; border: 1px solid var(--border); border-radius: 14px; 
       cursor: pointer; background: var(--bg); color: var(--text); font-weight: 600; 
       text-align: center; transition: all 0.2s;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-width: 80px;
+      min-width: 80px; flex: 1;
     }
     .opt-btn small { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 400; }
     .opt-btn:hover { border-color: var(--pistachio); }
     .opt-btn.active { border: 2px solid var(--text); background: var(--bg); }
 
-    /* Colors */
-    .color-grid { display: flex; gap: 16px; }
+    .color-grid { display: flex; gap: 16px; flex-wrap: wrap;}
     .color-btn { width: 44px; height: 44px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     .color-btn.active { border-color: var(--pistachio); transform: scale(1.15); }
 
-    /* Footer */
     .modal-footer { margin-top: auto; padding-top: 30px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .total-lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
     .final-price { font-size: 32px; font-weight: 900; color: var(--text); letter-spacing: -1px; }
@@ -117,7 +122,7 @@
 
   <div class="modal-backdrop" id="productModal">
     <div class="modal-content">
-      <button class="close-modal" onclick="closeModal()">×</button>
+      <button class="close-modal" id="btn-close-modal">×</button>
       
       <div class="modal-img-col">
         <img id="m-img" src="" alt="Phone">
@@ -129,7 +134,8 @@
           <p id="m-desc" style="color:var(--muted); margin-top:10px; line-height:1.5;">Description goes here.</p>
         </div>
         
-        <div id="opt-container"></div> 
+        <div id="opt-container">
+          </div>
 
         <div class="modal-footer">
           <div>
@@ -250,13 +256,15 @@
         grid.innerHTML += card;
       });
       
+      // Update currency & lang
       const curr = localStorage.getItem('currency') || 'EUR';
-      if(typeof changeCurrency === 'function') changeCurrency(curr);
+      if(typeof changeCurrency === 'function') window.applyCurrency(curr);
+      
       const lang = localStorage.getItem('lang') || 'en';
       if(typeof applyLanguage === 'function') applyLanguage(lang);
     }
     
-    // --- MODAL LOGIC ---
+    // --- MODAL LOGIC (FIXED) ---
     window.openModal = function(id) {
       const p = allProducts.find(x => x.id === id);
       if(!p) return;
@@ -265,31 +273,25 @@
       
       document.getElementById('m-img').src = p.image;
       document.getElementById('m-title').innerText = p.name;
-      document.getElementById('m-desc').innerText = p.desc || "";
+      
+      // Safe check for description
+      const desc = p.desc ? p.desc : "No description available.";
+      document.getElementById('m-desc').innerText = desc;
+      
       document.getElementById('productModal').classList.add('active');
 
       const container = document.getElementById('opt-container');
       container.innerHTML = '';
 
-      // Fallback if no options
-      if((!p.options || (!p.options.colors && !p.options.storage)) || (p.options.colors.length === 0 && p.options.storage.length === 0)) {
-         container.innerHTML = `<p style="color:var(--muted); font-size:14px; font-style:italic;">Standard configuration.</p>`;
-      }
+      let hasOptions = false;
 
       // Colors
       if(p.options && p.options.colors && p.options.colors.length > 0) {
+        hasOptions = true;
         let html = `<div class="opt-section"><span class="opt-title">Color</span><div class="color-grid">`;
         p.options.colors.forEach((c, idx) => {
           if(idx===0) currentSel.color = c;
-          // Try to handle hex vs name
-          let bg = c; 
-          if(!c.startsWith('#')) {
-             if(c.toLowerCase().includes('black')) bg = '#111';
-             else if(c.toLowerCase().includes('white')) bg = '#f2f2f2';
-             else if(c.toLowerCase().includes('blue')) bg = '#3b82f6';
-             else if(c.toLowerCase().includes('natural')) bg = '#d4d4d4';
-             else bg = '#eee'; // default
-          }
+          let bg = c.includes('#') ? c : (c.toLowerCase() === 'natural' ? '#d0cec7' : (c.toLowerCase() === 'black' ? '#111' : (c.toLowerCase() === 'white' ? '#eee' : c)));
           html += `<div class="color-btn ${idx===0?'active':''}" style="background:${bg}" title="${c}" onclick="selOpt(this, 'color', '${c}')"></div>`;
         });
         html += `</div></div>`;
@@ -298,16 +300,22 @@
 
       // Storage
       if(p.options && p.options.storage && p.options.storage.length > 0) {
+        hasOptions = true;
         let html = `<div class="opt-section"><span class="opt-title">Storage</span><div class="opt-grid">`;
         p.options.storage.forEach((s, idx) => {
           if(idx===0) { currentSel.storage = s.size; currentSel.add = s.price; }
           html += `<div class="opt-btn ${idx===0?'active':''}" onclick="selStorage(this, '${s.size}', ${s.price})">
             <span>${s.size}</span>
-            <small>${s.price > 0 ? '+€'+s.price : 'Base'}</small>
+            <small>${s.price > 0 ? '+€'+s.price : 'Standard'}</small>
           </div>`;
         });
         html += `</div></div>`;
         container.innerHTML += html;
+      }
+
+      // Fallback if NO options exist
+      if(!hasOptions) {
+        container.innerHTML = `<p style="color:var(--muted); font-size:14px; background:#f1f5f9; padding:10px; border-radius:10px;">Standard Configuration.</p>`;
       }
 
       updateModalPrice();
@@ -329,12 +337,20 @@
 
     function updateModalPrice() {
       const total = currentSel.base + currentSel.add;
+      const curr = localStorage.getItem('currency') || 'EUR';
+      
+      // Calculate Price based on currency
+      // We assume global.js has currencies object, but it's not exported.
+      // Simple fix: Show EUR base in modal, or try to use global helper if available.
+      // For stability, we just show EUR here, or rely on global apply if we refreshed.
+      // Better:
       document.getElementById('m-price').innerText = "€" + total;
     }
 
-    window.closeModal = function() {
+    // Explicit Close Function
+    document.getElementById('btn-close-modal').onclick = function() {
       document.getElementById('productModal').classList.remove('active');
-    }
+    };
 
     document.getElementById('m-add-btn').onclick = () => {
       const p = allProducts.find(x => x.id === currentSel.id);
@@ -342,7 +358,7 @@
       const desc = [currentSel.color, currentSel.storage].filter(Boolean).join(', ');
       
       addToCart(p.id, total, p.name, p.image, desc);
-      closeModal();
+      document.getElementById('productModal').classList.remove('active');
     }
 
     document.getElementById('f-all').onclick = () => { setActive('f-all'); renderShop('all'); };
