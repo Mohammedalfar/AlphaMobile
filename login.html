@@ -6,7 +6,7 @@
   <title>Alpha Mobile • Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
+    :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); --error: #ef4444; --success: #22c55e; }
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     
     body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; transition:0.3s; }
@@ -16,33 +16,40 @@
     h1 { margin-top: 0; text-align: center; }
     p { text-align: center; color: var(--muted); margin-bottom: 30px; font-size: 14px; }
     
-    .form-group { margin-bottom: 16px; }
+    .form-group { margin-bottom: 18px; position: relative; }
     label { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block; color: var(--text); }
     
-    /* Input Styling & Dark Mode Fix */
-    input, select, textarea { 
+    /* Input Styling */
+    input, select { 
       width: 100%; padding: 14px; border-radius: 12px; 
       border: 1px solid var(--border); 
       background: var(--bg); color: var(--text); 
       font-family: inherit; box-sizing: border-box; 
       font-size: 14px; outline: none; transition: 0.2s;
     }
-    input:focus, select:focus, textarea:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
     
+    /* Dynamic Validation Styling */
+    input.invalid { border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
+    input.valid { border-color: var(--success); }
+    
+    input:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
+    
+    .error-text { color: var(--error); font-size: 11px; margin-top: 5px; font-weight: 600; display: none; }
+    .error-text.show { display: block; animation: slideDown 0.2s ease; }
+
     .btn-action { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.2s; margin-top: 10px; }
-    .btn-action:hover { transform: scale(1.02); opacity: 0.9; }
+    .btn-action:disabled { background: var(--muted); cursor: not-allowed; opacity: 0.7; }
+    .btn-action:hover:not(:disabled) { transform: scale(1.02); opacity: 0.9; }
     
     .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); text-decoration: none; font-size: 13px; cursor: pointer;}
 
-    /* OTP Screen (Hidden by default) */
+    /* OTP Screen */
     .step-screen { display: none; animation: fadeIn 0.3s ease; }
     .step-screen.active { display: block; }
-
-    .otp-input { letter-spacing: 4px; font-size: 24px; text-align: center; font-weight: 700; }
-    
-    .error-msg { color: #ef4444; font-size: 12px; margin-top: 4px; display: none; font-weight: 600;}
+    .otp-input { letter-spacing: 8px; font-size: 24px; text-align: center; font-weight: 700; }
     
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -56,19 +63,19 @@
       <div class="form-group">
         <label>Full Name (First & Last)</label>
         <input type="text" id="u-name" placeholder="e.g. John Doe">
-        <div class="error-msg" id="err-name">Please enter both First and Last name.</div>
+        <div class="error-text" id="err-name">Must include First and Last name.</div>
       </div>
 
       <div class="form-group">
         <label>Email Address</label>
         <input type="email" id="u-email" placeholder="john@gmail.com">
-        <div class="error-msg" id="err-email">Please use a valid provider (Gmail, Outlook, Yahoo, iCloud).</div>
+        <div class="error-text" id="err-email">Invalid email domain (Gmail, Outlook, Yahoo only).</div>
       </div>
 
       <div class="form-group">
         <label>Phone Number</label>
-        <input type="tel" id="u-phone" value="+357 ">
-        <div class="error-msg" id="err-phone">Invalid phone number length.</div>
+        <input type="tel" id="u-phone" value="+357 " maxlength="13">
+        <div class="error-text" id="err-phone">Phone number incomplete (8 digits required).</div>
       </div>
 
       <div style="display:flex; gap:10px;">
@@ -89,7 +96,7 @@
         </div>
       </div>
 
-      <button class="btn-action" onclick="sendOTP()">Send Verification Code</button>
+      <button class="btn-action" id="btn-otp" onclick="sendOTP()">Send Verification Code</button>
       <a href="shop.html" class="back-link">Cancel</a>
     </div>
 
@@ -99,8 +106,8 @@
       
       <div class="form-group">
         <label style="text-align:center">Enter 4-Digit OTP</label>
-        <input type="number" id="u-otp" class="otp-input" placeholder="0000">
-        <div class="error-msg" id="err-otp">Incorrect code. Please try again.</div>
+        <input type="text" id="u-otp" class="otp-input" maxlength="4" placeholder="0000">
+        <div class="error-text" id="err-otp">Incorrect code. Please try again.</div>
       </div>
 
       <button class="btn-action" onclick="verifyOTP()">Verify & Login</button>
@@ -111,71 +118,114 @@
 
   <script>
     // --- 1. CONFIG & INIT ---
-    // Apply Dark Mode immediately to avoid flash
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     let generatedOTP = null;
+    
+    // Inputs
+    const iName = document.getElementById('u-name');
+    const iEmail = document.getElementById('u-email');
+    const iPhone = document.getElementById('u-phone');
 
-    // --- 2. PHONE AUTO-FILL LOGIC ---
-    const phoneInput = document.getElementById('u-phone');
-    phoneInput.addEventListener('input', function(e) {
-      if (!this.value.startsWith('+357 ')) {
-        this.value = '+357 ' + this.value.replace('+357 ', '').replace('+357', '');
+    // --- 2. REAL-TIME VALIDATION LOGIC ---
+
+    // A. PHONE: Strict "+357 " lock & Length check
+    iPhone.addEventListener('input', function(e) {
+      let val = this.value;
+      
+      // Force prefix
+      if(!val.startsWith('+357 ')) {
+        // If user tries to delete prefix, put it back
+        this.value = '+357 ' + val.replace(/\D/g,'').replace('357',''); 
+      }
+      
+      // Remove non-numbers (except the +)
+      // We allow space only in the specific spot after 357
+      const numbersOnly = this.value.substring(5).replace(/[^0-9]/g, '');
+      this.value = '+357 ' + numbersOnly;
+
+      // Validate Length (Must be exactly 8 digits)
+      const err = document.getElementById('err-phone');
+      if(numbersOnly.length === 8) {
+        this.classList.remove('invalid');
+        this.classList.add('valid');
+        err.classList.remove('show');
+      } else {
+        // Only show error if they started typing numbers
+        if(numbersOnly.length > 0) {
+           this.classList.add('invalid');
+           this.classList.remove('valid');
+           // Show error if full length isn't reached yet? 
+           // Usually better to show on blur, but user asked for "while writing"
+           // We'll show error if length < 8
+           err.classList.add('show');
+        } else {
+           this.classList.remove('invalid'); 
+           err.classList.remove('show');
+        }
       }
     });
-    phoneInput.addEventListener('focus', function() {
-      if(this.value === '') this.value = '+357 ';
-    });
 
-    // --- 3. VALIDATION & SEND OTP ---
-    function sendOTP() {
-      // Clear errors
-      document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
-      let isValid = true;
-
-      // A. Name Check (Must have space)
-      const name = document.getElementById('u-name').value.trim();
-      if (!name.includes(' ') || name.split(' ').length < 2) {
-        document.getElementById('err-name').style.display = 'block';
-        isValid = false;
-      }
-
-      // B. Email Check (Famous providers only)
-      const email = document.getElementById('u-email').value.trim().toLowerCase();
-      // Regex for standard domains
+    // B. EMAIL: Regex check while typing
+    iEmail.addEventListener('input', function() {
+      const val = this.value.toLowerCase().trim();
       const validDomains = /@(gmail|yahoo|outlook|hotmail|icloud|live|msn)\.(com|co\.uk|gr|cy)$/;
-      if (!validDomains.test(email)) {
-        document.getElementById('err-email').style.display = 'block';
-        isValid = false;
-      }
+      const err = document.getElementById('err-email');
 
-      // C. Phone Check
-      const phone = phoneInput.value.replace('+357 ', '');
-      if (phone.length < 8) { // Basic length check for Cyprus
-        document.getElementById('err-phone').style.display = 'block';
-        isValid = false;
+      if(val.match(validDomains)) {
+        this.classList.remove('invalid');
+        this.classList.add('valid');
+        err.classList.remove('show');
+      } else {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+        // Show error immediately? Or wait for '@'?
+        // Showing immediately ensures they know restricted domains exist
+        if(val.length > 5) err.classList.add('show'); 
       }
+    });
 
-      // D. Address Check
+    // C. NAME: Check for space
+    iName.addEventListener('input', function() {
+      const val = this.value.trim();
+      const err = document.getElementById('err-name');
+      
+      if(val.includes(' ') && val.split(' ').length >= 2 && val.length > 3) {
+        this.classList.remove('invalid');
+        this.classList.add('valid');
+        err.classList.remove('show');
+      } else {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+        if(val.length > 2) err.classList.add('show');
+      }
+    });
+
+    // --- 3. SEND OTP ---
+    function sendOTP() {
+      // Final sanity check before sending
+      const nameValid = iName.classList.contains('valid');
+      const emailValid = iEmail.classList.contains('valid');
+      const phoneValid = iPhone.classList.contains('valid');
       const city = document.getElementById('u-city').value;
       const addr = document.getElementById('u-address').value;
-      if (!city || !addr) {
-        alert("Please fill in City and Address details.");
-        isValid = false;
+
+      if(!nameValid || !emailValid || !phoneValid || !city || !addr) {
+        // Trigger all inputs to show their errors
+        iName.dispatchEvent(new Event('input'));
+        iEmail.dispatchEvent(new Event('input'));
+        iPhone.dispatchEvent(new Event('input'));
+        if(!city || !addr) alert("Address details missing");
+        return;
       }
 
-      if (!isValid) return;
-
-      // --- SIMULATE SENDING OTP ---
-      generatedOTP = Math.floor(1000 + Math.random() * 9000); // Generate 4 digit code
-      
-      // In a real app, this connects to a backend. 
-      // For this demo, we alert it so you can "receive" it.
+      // Generate Code
+      generatedOTP = Math.floor(1000 + Math.random() * 9000); 
       alert(`[DEMO] Your OTP Code is: ${generatedOTP}`);
       
-      // Switch Screens
-      document.getElementById('display-email').innerText = email;
+      // UI Switch
+      document.getElementById('display-email').innerText = iEmail.value;
       document.getElementById('step-1').classList.remove('active');
       document.getElementById('step-2').classList.add('active');
     }
@@ -184,21 +234,16 @@
     function verifyOTP() {
       const inputOTP = document.getElementById('u-otp').value;
       if (parseInt(inputOTP) === generatedOTP) {
-        // SUCCESS
         const user = {
-          name: document.getElementById('u-name').value,
-          email: document.getElementById('u-email').value,
-          phone: document.getElementById('u-phone').value,
+          name: iName.value,
+          email: iEmail.value,
+          phone: iPhone.value,
           address: `${document.getElementById('u-address').value}, ${document.getElementById('u-city').value}`
         };
-        
         localStorage.setItem('alphaUser', JSON.stringify(user));
-        
-        // Redirect to shop
         window.location.href = 'shop.html';
       } else {
-        // FAIL
-        document.getElementById('err-otp').style.display = 'block';
+        document.getElementById('err-otp').classList.add('show');
       }
     }
 
