@@ -20,7 +20,7 @@
     label { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block; color: var(--text); }
     
     /* Input Styling */
-    input, select { 
+    input { 
       width: 100%; padding: 14px; border-radius: 12px; 
       border: 1px solid var(--border); 
       background: var(--bg); color: var(--text); 
@@ -28,18 +28,16 @@
       font-size: 14px; outline: none; transition: 0.2s;
     }
     
-    /* Dynamic Validation Styling */
+    /* Validation Colors */
     input.invalid { border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
     input.valid { border-color: var(--success); }
-    
     input:focus { border-color: var(--pistachio); ring: 2px solid var(--pistachio); }
     
     .error-text { color: var(--error); font-size: 11px; margin-top: 5px; font-weight: 600; display: none; }
     .error-text.show { display: block; animation: slideDown 0.2s ease; }
 
     .btn-action { width: 100%; padding: 16px; background: var(--pistachio); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.2s; margin-top: 10px; }
-    .btn-action:disabled { background: var(--muted); cursor: not-allowed; opacity: 0.7; }
-    .btn-action:hover:not(:disabled) { transform: scale(1.02); opacity: 0.9; }
+    .btn-action:hover { transform: scale(1.02); opacity: 0.9; }
     
     .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); text-decoration: none; font-size: 13px; cursor: pointer;}
 
@@ -57,46 +55,22 @@
   <div class="login-card">
     
     <div id="step-1" class="step-screen active">
-      <h1>Welcome</h1>
-      <p>Enter your details to verify your account.</p>
+      <h1>Sign In</h1>
+      <p>Enter your phone and email to continue.</p>
 
       <div class="form-group">
-        <label>Full Name (First & Last)</label>
-        <input type="text" id="u-name" placeholder="e.g. John Doe">
-        <div class="error-text" id="err-name">Must include First and Last name.</div>
+        <label>Phone Number (Cyprus Only)</label>
+        <input type="tel" id="u-phone" value="+357 " maxlength="13">
+        <div class="error-text" id="err-phone">Must start with +357 and have 8 digits.</div>
       </div>
 
       <div class="form-group">
         <label>Email Address</label>
         <input type="email" id="u-email" placeholder="john@gmail.com">
-        <div class="error-text" id="err-email">Invalid email domain (Gmail, Outlook, Yahoo only).</div>
+        <div class="error-text" id="err-email">Invalid email (Gmail, Outlook, Yahoo only).</div>
       </div>
 
-      <div class="form-group">
-        <label>Phone Number</label>
-        <input type="tel" id="u-phone" value="+357 " maxlength="13">
-        <div class="error-text" id="err-phone">Phone number incomplete (8 digits required).</div>
-      </div>
-
-      <div style="display:flex; gap:10px;">
-        <div class="form-group" style="flex:1">
-          <label>City</label>
-          <select id="u-city">
-            <option value="" disabled selected>Select...</option>
-            <option value="Nicosia">Nicosia</option>
-            <option value="Limassol">Limassol</option>
-            <option value="Larnaca">Larnaca</option>
-            <option value="Paphos">Paphos</option>
-            <option value="Famagusta">Famagusta</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex:1.5">
-          <label>Address Details</label>
-          <input type="text" id="u-address" placeholder="Street, Apt, etc.">
-        </div>
-      </div>
-
-      <button class="btn-action" id="btn-otp" onclick="sendOTP()">Send Verification Code</button>
+      <button class="btn-action" onclick="sendOTP()">Send Verification Code</button>
       <a href="shop.html" class="back-link">Cancel</a>
     </div>
 
@@ -117,57 +91,44 @@
   </div>
 
   <script>
-    // --- 1. CONFIG & INIT ---
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     let generatedOTP = null;
-    
-    // Inputs
-    const iName = document.getElementById('u-name');
     const iEmail = document.getElementById('u-email');
     const iPhone = document.getElementById('u-phone');
 
-    // --- 2. REAL-TIME VALIDATION LOGIC ---
-
-    // A. PHONE: Strict "+357 " lock & Length check
+    // --- 1. REAL-TIME PHONE CHECK ---
     iPhone.addEventListener('input', function(e) {
       let val = this.value;
-      
-      // Force prefix
-      if(!val.startsWith('+357 ')) {
-        // If user tries to delete prefix, put it back
-        this.value = '+357 ' + val.replace(/\D/g,'').replace('357',''); 
-      }
-      
-      // Remove non-numbers (except the +)
-      // We allow space only in the specific spot after 357
-      const numbersOnly = this.value.substring(5).replace(/[^0-9]/g, '');
-      this.value = '+357 ' + numbersOnly;
-
-      // Validate Length (Must be exactly 8 digits)
       const err = document.getElementById('err-phone');
-      if(numbersOnly.length === 8) {
+
+      // 1. Strict Prefix Check
+      if(!val.startsWith('+357')) {
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+        err.innerText = "Only Cyprus (+357) numbers allowed.";
+        err.classList.add('show');
+        return; 
+      }
+
+      // 2. Length Check (Prefix 5 chars + 8 digits = 13)
+      const numbersOnly = val.replace(/[^0-9]/g, ''); // removes '+' and ' '
+      // 357 + 8 digits = 11 digits total in 'numbersOnly' string
+      
+      if(numbersOnly.length === 11) {
         this.classList.remove('invalid');
         this.classList.add('valid');
         err.classList.remove('show');
       } else {
-        // Only show error if they started typing numbers
-        if(numbersOnly.length > 0) {
-           this.classList.add('invalid');
-           this.classList.remove('valid');
-           // Show error if full length isn't reached yet? 
-           // Usually better to show on blur, but user asked for "while writing"
-           // We'll show error if length < 8
-           err.classList.add('show');
-        } else {
-           this.classList.remove('invalid'); 
-           err.classList.remove('show');
-        }
+        this.classList.add('invalid');
+        this.classList.remove('valid');
+        err.innerText = "Number incomplete (8 digits required).";
+        err.classList.add('show');
       }
     });
 
-    // B. EMAIL: Regex check while typing
+    // --- 2. REAL-TIME EMAIL CHECK ---
     iEmail.addEventListener('input', function() {
       const val = this.value.toLowerCase().trim();
       const validDomains = /@(gmail|yahoo|outlook|hotmail|icloud|live|msn)\.(com|co\.uk|gr|cy)$/;
@@ -180,65 +141,36 @@
       } else {
         this.classList.add('invalid');
         this.classList.remove('valid');
-        // Show error immediately? Or wait for '@'?
-        // Showing immediately ensures they know restricted domains exist
         if(val.length > 5) err.classList.add('show'); 
       }
     });
 
-    // C. NAME: Check for space
-    iName.addEventListener('input', function() {
-      const val = this.value.trim();
-      const err = document.getElementById('err-name');
-      
-      if(val.includes(' ') && val.split(' ').length >= 2 && val.length > 3) {
-        this.classList.remove('invalid');
-        this.classList.add('valid');
-        err.classList.remove('show');
-      } else {
-        this.classList.add('invalid');
-        this.classList.remove('valid');
-        if(val.length > 2) err.classList.add('show');
-      }
-    });
-
-    // --- 3. SEND OTP ---
+    // --- 3. LOGIC ---
     function sendOTP() {
-      // Final sanity check before sending
-      const nameValid = iName.classList.contains('valid');
-      const emailValid = iEmail.classList.contains('valid');
-      const phoneValid = iPhone.classList.contains('valid');
-      const city = document.getElementById('u-city').value;
-      const addr = document.getElementById('u-address').value;
+      // Force validation check before proceeding
+      iPhone.dispatchEvent(new Event('input'));
+      iEmail.dispatchEvent(new Event('input'));
 
-      if(!nameValid || !emailValid || !phoneValid || !city || !addr) {
-        // Trigger all inputs to show their errors
-        iName.dispatchEvent(new Event('input'));
-        iEmail.dispatchEvent(new Event('input'));
-        iPhone.dispatchEvent(new Event('input'));
-        if(!city || !addr) alert("Address details missing");
-        return;
+      if(iPhone.classList.contains('invalid') || iEmail.classList.contains('invalid')) {
+        return; // Stop if errors exist
       }
 
-      // Generate Code
       generatedOTP = Math.floor(1000 + Math.random() * 9000); 
       alert(`[DEMO] Your OTP Code is: ${generatedOTP}`);
       
-      // UI Switch
       document.getElementById('display-email').innerText = iEmail.value;
       document.getElementById('step-1').classList.remove('active');
       document.getElementById('step-2').classList.add('active');
     }
 
-    // --- 4. VERIFY OTP ---
     function verifyOTP() {
       const inputOTP = document.getElementById('u-otp').value;
       if (parseInt(inputOTP) === generatedOTP) {
         const user = {
-          name: iName.value,
+          name: "Guest Customer", // Default since we removed name input
           email: iEmail.value,
           phone: iPhone.value,
-          address: `${document.getElementById('u-address').value}, ${document.getElementById('u-city').value}`
+          address: "Not Provided" // Default since we removed address input
         };
         localStorage.setItem('alphaUser', JSON.stringify(user));
         window.location.href = 'shop.html';
