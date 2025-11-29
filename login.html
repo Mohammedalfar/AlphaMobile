@@ -6,6 +6,7 @@
   <title>Alpha Mobile • Access</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <style>
+    /* [existing styles from original login.html] */
     :root{ --pistachio: #93C572; --bg: #fbfefb; --text: #0f172a; --card: #ffffff; --muted: #64748b; --border: rgba(0,0,0,0.08); }
     [data-theme="dark"]{ --bg: #0a0e17; --card: #111827; --text: #f8fafc; --muted: #94a3b8; --border: rgba(255,255,255,0.1); }
     body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); margin:0; display:grid; place-items:center; min-height:100vh; padding:20px; }
@@ -23,10 +24,12 @@
     
     .btn-submit { width:100%; padding:16px; background:var(--pistachio); color:white; border:none; border-radius:16px; font-weight:700; cursor:pointer; font-size:16px; transition:0.2s; margin-top:10px; }
     .btn-submit:hover { opacity:0.9; transform:scale(1.02); }
+    .btn-otp { background: #10b981; margin-top:10px; }
     .error-msg { color:#ef4444; font-size:13px; margin-top:10px; display:none; text-align:center; }
     
     .hidden { display:none; }
     .back-link { display:block; text-align:center; margin-top:20px; color:var(--muted); text-decoration:none; font-size:13px; }
+    #recaptcha-container { margin: 10px 0; }  /* For reCAPTCHA */
   </style>
 </head>
 <body>
@@ -42,12 +45,21 @@
       <p style="color:var(--muted); margin-bottom:20px;">Enter your details to access your account.</p>
       
       <div class="input-group">
-        <label>Email Address</label>
-        <input type="email" id="l-email" placeholder="john@example.com">
+        <label>Username or Email</label>
+        <input type="text" id="l-user" placeholder="username@example.com">
       </div>
       <div class="input-group">
         <label>Password</label>
         <input type="password" id="l-pass" placeholder="••••••••">
+      </div>
+      <div class="input-group">
+        <label>Phone (for OTP)</label>
+        <input type="tel" id="l-phone" placeholder="+357 96 123 456">
+      </div>
+      <div class="input-group hidden" id="otp-group-login">
+        <label>Enter OTP</label>
+        <input type="text" id="l-otp" placeholder="123456">
+        <button class="btn-submit btn-otp" id="btn-verify-login">Verify OTP</button>
       </div>
       <button class="btn-submit" id="btn-login">Sign In</button>
     </div>
@@ -56,6 +68,10 @@
       <h1>Create Account</h1>
       <p style="color:var(--muted); margin-bottom:20px;">Start your journey with Alpha Mobile.</p>
       
+      <div class="input-group">
+        <label>Username</label>  <!-- New field -->
+        <input type="text" id="r-username" placeholder="yourusername">
+      </div>
       <div class="input-group">
         <label>Full Name</label>
         <input type="text" id="r-name" placeholder="John Doe">
@@ -72,6 +88,11 @@
         <label>Password</label>
         <input type="password" id="r-pass" placeholder="Create a password">
       </div>
+      <div class="input-group hidden" id="otp-group-register">
+        <label>Enter OTP</label>
+        <input type="text" id="r-otp" placeholder="123456">
+        <button class="btn-submit btn-otp" id="btn-verify-register">Verify OTP</button>
+      </div>
       <button class="btn-submit" id="btn-register">Create Account</button>
     </div>
 
@@ -79,8 +100,13 @@
     <a href="shop.html" class="back-link">Back to Shop</a>
   </div>
 
+  <!-- reCAPTCHA container for OTP -->
+  <div id="recaptcha-container"></div>
+
   <script type="module">
-    import { registerUser, loginUser } from './db.js';
+    import { registerUser, loginUser, sendOTP, verifyOTP, auth } from './db.js';
+
+    let currentConfirmationResult = null;  // Store for OTP verification
 
     window.switchTab = (tab) => {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -94,19 +120,28 @@
         document.getElementById('register-form').classList.remove('hidden');
       }
       document.getElementById('error-txt').style.display = 'none';
+      // Hide OTP groups
+      document.getElementById('otp-group-login').classList.add('hidden');
+      document.getElementById('otp-group-register').classList.add('hidden');
     }
 
+    // Login Handler
     document.getElementById('btn-login').onclick = async () => {
-      const email = document.getElementById('l-email').value;
+      const userOrEmail = document.getElementById('l-user').value;
       const pass = document.getElementById('l-pass').value;
+      const phone = document.getElementById('l-phone').value;
       const btn = document.getElementById('btn-login');
       
+      if (!userOrEmail || !pass || !phone) return showError("All fields required");
+
       try {
         btn.innerText = "Verifying...";
-        await loginUser(email, pass);
-        // Save minimal info for global.js compatibility
-        localStorage.setItem('alphaUser', JSON.stringify({ email })); 
-        window.location.href = 'profile.html';
+        // For simplicity, assume username is email; in production, query Firestore by username
+        await loginUser(userOrEmail, pass, phone, null);  // OTP handled separately
+        // Send OTP after email login
+        currentConfirmationResult = await sendOTP(phone);
+        document.getElementById('otp-group-login').classList.remove('hidden');
+        showError("OTP sent! Enter code.", true);  // Success message
       } catch (err) {
         showError(err.message);
       } finally {
@@ -114,20 +149,37 @@
       }
     };
 
+    // Verify Login OTP
+    document.getElementById('btn-verify-login').onclick = async () => {
+      const otp = document.getElementById('l-otp').value;
+      if (!otp) return showError("Enter OTP");
+
+      try {
+        await verifyOTP(currentConfirmationResult, otp);
+        localStorage.setItem('alphaUser', JSON.stringify({ username: 'user', email: document.getElementById('l-user').value })); 
+        window.location.href = 'shop.html?openCart=true';
+      } catch (err) {
+        showError("Invalid OTP: " + err.message);
+      }
+    };
+
+    // Register Handler
     document.getElementById('btn-register').onclick = async () => {
+      const username = document.getElementById('r-username').value;
       const name = document.getElementById('r-name').value;
       const phone = document.getElementById('r-phone').value;
       const email = document.getElementById('r-email').value;
       const pass = document.getElementById('r-pass').value;
       const btn = document.getElementById('btn-register');
 
-      if(!name || !phone || !email || !pass) return showError("All fields required");
+      if(!username || !name || !phone || !email || !pass) return showError("All fields required");
 
       try {
         btn.innerText = "Creating...";
-        await registerUser(email, pass, name, phone);
-        localStorage.setItem('alphaUser', JSON.stringify({ name, phone, email }));
-        window.location.href = 'profile.html';
+        const result = await registerUser(email, pass, username, name, phone);
+        currentConfirmationResult = result.confirmationResult;
+        document.getElementById('otp-group-register').classList.remove('hidden');
+        showError("OTP sent to " + phone + "! Verify to complete.", true);
       } catch (err) {
         showError(err.message);
       } finally {
@@ -135,9 +187,27 @@
       }
     };
 
-    function showError(msg) {
+    // Verify Register OTP
+    document.getElementById('btn-verify-register').onclick = async () => {
+      const otp = document.getElementById('r-otp').value;
+      if (!otp) return showError("Enter OTP");
+
+      try {
+        await verifyOTP(currentConfirmationResult, otp);
+        const username = document.getElementById('r-username').value;
+        const name = document.getElementById('r-name').value;
+        const email = document.getElementById('r-email').value;
+        localStorage.setItem('alphaUser', JSON.stringify({ username, name, email }));
+        window.location.href = 'shop.html?openCart=true';
+      } catch (err) {
+        showError("Invalid OTP: " + err.message);
+      }
+    };
+
+    function showError(msg, isSuccess = false) {
       const el = document.getElementById('error-txt');
-      el.innerText = msg.replace("Firebase: ", "");
+      el.innerText = msg;
+      el.style.color = isSuccess ? 'green' : '#ef4444';
       el.style.display = 'block';
     }
   </script>
