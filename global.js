@@ -1,15 +1,14 @@
-/* global.js - Final Fixes: Links & Lang Persistence */
+/* global.js */
 
-// --- 1. CONFIGURATION ---
 const currencies = {
-  EUR: { rate: 1, symbol: "€" },
-  USD: { rate: 1.08, symbol: "$" },
-  GBP: { rate: 0.85, symbol: "£" },
-  JPY: { rate: 163, symbol: "¥" },
-  CNY: { rate: 7.8, symbol: "¥" },
-  AUD: { rate: 1.65, symbol: "A$" },
-  CAD: { rate: 1.47, symbol: "C$" },
-  CHF: { rate: 0.95, symbol: "Fr" }
+  EUR: { rate: 1, symbol: "€", name: "€ EUR" },
+  USD: { rate: 1.08, symbol: "$", name: "$ USD" },
+  GBP: { rate: 0.85, symbol: "£", name: "£ GBP" },
+  JPY: { rate: 163, symbol: "¥", name: "¥ JPY" },
+  CNY: { rate: 7.8, symbol: "¥", name: "¥ CNY" },
+  AUD: { rate: 1.65, symbol: "A$", name: "$ AUD" },
+  CAD: { rate: 1.47, symbol: "C$", name: "$ CAD" },
+  CHF: { rate: 0.95, symbol: "Fr", name: "Fr CHF" }
 };
 
 const translations = {
@@ -75,7 +74,6 @@ let currentCurrency = localStorage.getItem('currency') || 'EUR';
 let currentLang = localStorage.getItem('lang') || 'en';
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Inject Cart HTML
   const cartHTML = `
     <div class="cart-sidebar" id="cartSidebar">
       <div class="cart-header">
@@ -103,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
       .cart-total { margin-top: 20px; font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 15px; }
       .btn-checkout { width: 100%; padding: 16px; background: #93C572; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 15px; transition: 0.2s; }
-      .control-select { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; cursor: pointer; outline: none; margin: 0; height: 36px; font-family: 'Inter', sans-serif; }
       
       @media(max-width: 500px) { .cart-sidebar { width: 100%; right: -100%; } .cart-sidebar.open { right: 0; } }
       html[dir="rtl"] .cart-sidebar { right: auto; left: -400px; border-left: none; border-right: 1px solid var(--border); }
@@ -112,27 +109,35 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.insertAdjacentHTML('beforeend', cartHTML);
   
-  // Apply saved settings
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
   
-  const currSelector = document.getElementById('currency-selector');
-  if(currSelector) currSelector.value = currentCurrency;
-
   const savedCode = localStorage.getItem('langCode') || 'US';
   const savedName = localStorage.getItem('langName') || 'English';
   
   if(document.getElementById('current-code')) document.getElementById('current-code').innerText = savedCode;
   if(document.getElementById('current-name')) document.getElementById('current-name').innerText = savedName;
   
-  // Init
+  if(document.getElementById('current-currency-display')) {
+    document.getElementById('current-currency-display').innerText = currencies[currentCurrency].name;
+  }
+
   window.applyLanguage(currentLang);
   window.applyCurrency(currentCurrency);
   updateCartUI();
   updateNavCounts();
 });
 
-// --- Profile / Login Logic ---
+window.toggleCurrencyMenu = function() {
+  document.getElementById('currency-menu').classList.toggle('open');
+}
+
+window.selectCurrency = function(code) {
+  changeCurrency(code);
+  document.getElementById('current-currency-display').innerText = currencies[code].name;
+  document.getElementById('currency-menu').classList.remove('open');
+}
+
 window.toggleProfile = function() {
   document.getElementById('profile-menu').classList.toggle('open');
   updateProfileMenu();
@@ -141,18 +146,10 @@ window.toggleProfile = function() {
 window.updateProfileMenu = function() {
   const user = JSON.parse(localStorage.getItem('alphaUser'));
   const menu = document.getElementById('profile-menu');
-  
   if(user) {
-    menu.innerHTML = `
-      <div style="padding:10px; font-weight:600; color:var(--text); border-bottom:1px solid var(--border); margin-bottom:5px;">Hi, ${user.name.split(' ')[0]}</div>
-      <div class="profile-option" onclick="window.location.href='shop.html'">My Orders</div>
-      <div class="profile-option" onclick="logoutUser()" style="color:#ef4444">Logout</div>
-    `;
+    menu.innerHTML = `<div style="padding:10px;font-weight:600;color:var(--text);border-bottom:1px solid var(--border);margin-bottom:5px;">Hi, ${user.name.split(' ')[0]}</div><div class="profile-option" onclick="window.location.href='profile.html'">Settings</div><div class="profile-option" onclick="logoutUser()" style="color:#ef4444">Logout</div>`;
   } else {
-    menu.innerHTML = `
-      <div class="profile-option" onclick="window.location.href='login.html'">Login</div>
-      <div class="profile-option" onclick="window.location.href='register.html'">Register</div>
-    `;
+    menu.innerHTML = `<div class="profile-option" onclick="window.location.href='login.html'">Login</div><div class="profile-option" onclick="window.location.href='register.html'">Register</div>`;
   }
 }
 
@@ -165,10 +162,9 @@ window.logoutUser = function() {
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.profile-btn')) document.getElementById('profile-menu')?.classList.remove('open');
   if (!e.target.closest('.lang-dropdown')) document.getElementById('lang-menu')?.classList.remove('open');
+  if (!e.target.closest('.currency-dropdown')) document.getElementById('currency-menu')?.classList.remove('open');
 });
 
-
-// --- Language ---
 window.toggleLangMenu = function() {
   document.getElementById('lang-menu').classList.toggle('open');
 }
@@ -178,10 +174,8 @@ window.changeLang = function(lang, code, name) {
   localStorage.setItem('lang', lang);
   localStorage.setItem('langCode', code);
   localStorage.setItem('langName', name);
-  
   document.getElementById('current-code').innerText = code;
   document.getElementById('current-name').innerText = name;
-
   window.applyLanguage(lang);
   document.getElementById('lang-menu').classList.remove('open');
 }
@@ -189,48 +183,16 @@ window.changeLang = function(lang, code, name) {
 window.applyLanguage = function(lang) {
   const t = translations[lang] || translations['en'];
   document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-
-  // Nav
   if(document.getElementById('nav-1')) document.getElementById('nav-1').innerText = t.nav[0];
   if(document.getElementById('nav-2')) document.getElementById('nav-2').innerText = t.nav[1];
   if(document.getElementById('nav-3')) document.getElementById('nav-3').innerText = t.nav[2];
   if(document.getElementById('nav-4')) document.getElementById('nav-4').innerText = t.nav[3];
-
-  // Cart
   if(document.getElementById('cart-title')) document.getElementById('cart-title').innerText = t.cart.title;
   if(document.getElementById('cart-total-lbl')) document.getElementById('cart-total-lbl').innerText = t.cart.total;
   if(document.getElementById('cart-checkout')) document.getElementById('cart-checkout').innerText = t.cart.checkout;
-
-  // Pages
-  if(document.getElementById('page-title')) {
-    const p = window.location.pathname;
-    if(p.includes('shop')) document.getElementById('page-title').innerText = t.shop.title;
-    else if(p.includes('repair')) document.getElementById('page-title').innerText = t.repair.title;
-    else if(p.includes('contact')) document.getElementById('page-title').innerText = t.contact.title;
-  }
-
-  // Filters
-  if(document.getElementById('f-all')) {
-    document.getElementById('f-all').innerText = t.shop.filter[0];
-    document.getElementById('f-phone').innerText = t.shop.filter[1];
-    document.getElementById('f-audio').innerText = t.shop.filter[2];
-    document.getElementById('f-cable').innerText = t.shop.filter[3];
-  }
-
-  // Contact
-  if(document.getElementById('form-title')) document.getElementById('form-title').innerText = t.contact.formTitle;
-  if(document.getElementById('btn-send')) document.getElementById('btn-send').innerText = t.contact.btn;
-  if(document.getElementById('ph-name')) document.getElementById('ph-name').placeholder = t.contact.ph[0];
-  
-  // Buttons
-  document.querySelectorAll('.btn-buy').forEach(b => {
-    if(b.innerText !== "Add to Cart" && b.innerText !== "Configure") b.innerText = t.shop.btn;
-  });
-  
   updateCartUI();
 }
 
-// --- Currency (NO RELOAD FIX) ---
 window.changeCurrency = function(currency) {
   currentCurrency = currency;
   localStorage.setItem('currency', currency);
@@ -239,7 +201,6 @@ window.changeCurrency = function(currency) {
 
 window.applyCurrency = function(currency) {
   const data = currencies[currency];
-  
   document.querySelectorAll('.product-price, .price').forEach(el => {
     if(!el.dataset.original) {
       const match = el.innerText.match(/[\d,]+\.?\d*/); 
@@ -251,11 +212,9 @@ window.applyCurrency = function(currency) {
       el.innerText = `${data.symbol}${(base * data.rate).toFixed(0)}`;
     }
   });
-  
   updateCartUI();
 }
 
-// --- Theme ---
 window.toggleTheme = function() {
   const current = document.documentElement.getAttribute('data-theme');
   const next = current === 'dark' ? 'light' : 'dark';
@@ -263,7 +222,6 @@ window.toggleTheme = function() {
   localStorage.setItem('theme', next);
 }
 
-// --- Cart Logic ---
 let cart = JSON.parse(localStorage.getItem('alphaCart')) || [];
 
 window.toggleCart = function() {
@@ -298,13 +256,9 @@ function updateCartUI() {
   const container = document.getElementById('cartItems');
   const totalEl = document.getElementById('cartTotal');
   const curr = currencies[currentCurrency];
-  const lang = currentLang;
-  const t = translations[lang] || translations['en'];
-  
   let total = 0;
-  
   if (cart.length === 0) {
-    if(container) container.innerHTML = `<p style="color:var(--muted); text-align:center; margin-top:20px;">${t.cart.empty}</p>`;
+    if(container) container.innerHTML = `<p style="color:var(--muted); text-align:center; margin-top:20px;">Empty</p>`;
   } else {
     if(container) container.innerHTML = cart.map((item, index) => {
       total += item.price;
@@ -321,17 +275,12 @@ window.checkout = function() {
   if(!user) { window.location.href = 'login.html'; return; }
   
   const curr = currencies[currentCurrency];
-  // NEW WHATSAPP LINK WITH USER ADDRESS
-  let msg = `New Order from *${user.name}*\n`;
-  msg += `Phone: ${user.phone}\n`;
-  msg += `Address: ${user.address}, ${user.city}\n\n`;
-  
+  let msg = `New Order from *${user.name}*\nPhone: ${user.phone}\nAddress: ${user.address}, ${user.city}\n\n`;
   let total = 0;
   cart.forEach(item => { 
     total += item.price;
     msg += `- ${item.name} (${curr.symbol}${(item.price * curr.rate).toFixed(0)})\n`;
   });
   msg += `\n*Total: ${curr.symbol}${(total * curr.rate).toFixed(0)}*`;
-  // NEW PHONE NUMBER
   window.open(`https://wa.me/35770009394?text=${encodeURIComponent(msg)}`, '_blank');
 }
