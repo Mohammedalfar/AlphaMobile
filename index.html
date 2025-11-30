@@ -42,112 +42,43 @@
 
     /* HERO SECTION */
     .hero{display:flex;align-items:center;gap:40px;padding:40px 0;min-height:70vh; flex-wrap: wrap;}
-    .hero-left { flex: 1; display: flex; flex-direction: column; gap: 24px; min-width: 300px; }
+    .hero-left { flex: 1; display: flex; flex-direction: column; gap: 24px; min-width: 300px; z-index: 5; }
     .welcome-text { font-size: clamp(28px, 4.5vw, 56px); font-weight: 900; line-height: 1.3; }
     .highlight { color: var(--pistachio); }
     .btn-primary{ padding:16px 32px;border-radius:999px;border:none; font-weight:700; background:var(--pistachio);color:white; text-decoration:none; display:inline-block; transition:transform 0.2s;} 
     .btn-primary:hover{transform:translateY(-3px);}
 
-    /* PHONE SHOWCASE */
-    .hero-right { flex: 1.5; display: flex; gap: 30px; justify-content: center; perspective: 1000px; min-width: 320px; }
-    
-    /* Phone Base Styles */
-    .iphone-17 {
-      width: 280px; height: 580px;
-      background: #000;
-      border-radius: 48px;
-      position: relative;
-      border: 8px solid #ff9f0a; /* Orange Titanium Frame */
-      box-shadow: 0 25px 50px -12px rgba(255, 159, 10, 0.3), inset 0 0 20px rgba(0,0,0,0.5);
-      transition: transform 0.4s ease;
+    /* CROSSED PHONES */
+    .hero-right { 
+      flex: 1.2; position: relative; 
+      height: 600px; display: flex; justify-content: center; align-items: center; 
+      perspective: 1000px; min-width: 320px;
     }
-    .iphone-17:hover { transform: translateY(-10px) rotateY(5deg); }
+    .phone-img {
+      position: absolute;
+      width: 300px;
+      height: auto;
+      transition: transform 0.5s var(--ease);
+      filter: drop-shadow(0 25px 50px rgba(0,0,0,0.3));
+    }
+    
+    /* Back Phone (Leaning Left) */
+    .p-back {
+      z-index: 1;
+      transform: rotate(-15deg) translateX(-50px) translateZ(-50px);
+    }
+    
+    /* Front Phone (Leaning Right) */
+    .p-front {
+      z-index: 2;
+      transform: rotate(15deg) translateX(50px) translateZ(50px);
+    }
 
-    /* --- BACK OF PHONE (ORANGE) --- */
-    .iphone-back {
-      background: linear-gradient(135deg, #ffafcc 0%, #ff9f0a 100%);
-      background: #ff9f0a; /* Fallback */
-      background: linear-gradient(145deg, #ffb347, #ffcc33);
-      display: flex; justify-content: center; align-items: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .iphone-back::before { content:''; position:absolute; inset:0; background: rgba(255,255,255,0.1); pointer-events: none; }
-    .logo-apple { font-size: 40px; color: rgba(0,0,0,0.4); font-weight: 900; }
-    
-    /* Camera Bump */
-    .camera-island {
-      position: absolute; top: 30px; left: 30px;
-      width: 110px; height: 110px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 28px;
-      box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
-      backdrop-filter: blur(5px);
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px;
-    }
-    .lens {
-      width: 100%; height: 100%;
-      background: #111; border-radius: 50%;
-      border: 3px solid #cc7a00; /* Darker orange ring */
-      position: relative;
-      background: radial-gradient(circle at 30% 30%, #444, #000);
-    }
-    .lens:nth-child(3) { grid-column: span 2; width: 50%; justify-self: center; }
+    /* Animation on Hover */
+    .hero-right:hover .p-back { transform: rotate(-20deg) translateX(-80px) scale(0.95); }
+    .hero-right:hover .p-front { transform: rotate(20deg) translateX(80px) scale(1.05); }
 
-    /* --- FRONT OF PHONE (INTERACTIVE) --- */
-    .iphone-front {
-      background: #000;
-      overflow: hidden;
-      display: flex; flex-direction: column;
-    }
-    /* Dynamic Island */
-    .dynamic-island {
-      width: 100px; height: 28px;
-      background: #000;
-      border-radius: 20px;
-      position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-      z-index: 20;
-    }
-    /* Screen Content */
-    .screen {
-      flex: 1;
-      background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1000&auto=format&fit=crop') center/cover;
-      display: flex; flex-direction: column;
-      padding: 60px 20px 20px;
-      color: white;
-      position: relative;
-    }
-    .time-widget { text-align: center; margin-bottom: auto; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-    .clock { font-size: 52px; font-weight: 200; line-height: 1; }
-    .date { font-size: 16px; font-weight: 500; opacity: 0.8; }
-    
-    /* Interactive Apps Grid */
-    .app-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;
-      padding: 15px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 30px;
-      backdrop-filter: blur(10px);
-      margin-bottom: 10px;
-    }
-    .app-icon {
-      width: 100%; aspect-ratio: 1;
-      border-radius: 12px;
-      display: grid; place-items: center;
-      font-size: 20px; cursor: pointer;
-      transition: transform 0.2s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-    .app-icon:hover { transform: scale(1.1); }
-    
-    /* App Colors */
-    .app-shop { background: #93C572; color: white; }
-    .app-repairs { background: #3b82f6; color: white; }
-    .app-contact { background: #f59e0b; color: white; }
-    .app-login { background: #ef4444; color: white; }
-
-    @media(max-width:900px){ header{flex-direction:column; gap:20px;} .controls {margin:0; flex-wrap:wrap; justify-content:center;} .hero-right{ transform: scale(0.8); gap: 10px; } }
-    @media(max-width:600px){ .hero-right { flex-direction: column; align-items: center; } }
+    @media(max-width:900px){ header{flex-direction:column; gap:20px;} .controls {margin:0; flex-wrap:wrap; justify-content:center;} .hero-right{ transform: scale(0.7); margin-top: -50px; } }
   </style>
 </head>
 <body>
@@ -205,37 +136,15 @@
 
     <section class="hero">
       <div class="hero-left">
-        <div class="welcome-text">Experience the <br><span class="highlight">iPhone 17 Pro Max</span></div>
-        <p style="font-size:18px; color:var(--muted)">Titanium Orange finish. Interactive display.<br>Available now at Alpha Mobile.</p>
-        <div><a href="shop.html" class="btn-primary">Pre-Order Now</a></div>
+        <div class="welcome-text">Experience <span class="highlight">Innovation</span><br>with Alpha Mobile.</div>
+        <p style="font-size:18px; color:var(--muted)">Premium devices. Genuine accessories. Expert repairs.<br>All available now in Cyprus.</p>
+        <div><a href="shop.html" class="btn-primary">Browse Shop</a></div>
       </div>
       
       <div class="hero-right">
-        <div class="iphone-17 iphone-back">
-          <div class="camera-island">
-            <div class="lens"></div>
-            <div class="lens"></div>
-            <div class="lens"></div>
-          </div>
-          <div class="logo-apple"></div>
-        </div>
-
-        <div class="iphone-17 iphone-front">
-          <div class="dynamic-island"></div>
-          <div class="screen">
-            <div class="time-widget">
-              <div class="clock" id="live-clock">12:00</div>
-              <div class="date">Saturday, November 30</div>
-            </div>
-            
-            <div class="app-grid">
-              <div class="app-icon app-shop" onclick="window.location.href='shop.html'" title="Shop">🛍️</div>
-              <div class="app-icon app-repairs" onclick="window.location.href='repairs.html'" title="Repairs">🔧</div>
-              <div class="app-icon app-contact" onclick="window.location.href='contact.html'" title="Contact">📞</div>
-              <div class="app-icon app-login" onclick="window.location.href='login.html'" title="Login">👤</div>
-            </div>
-          </div>
-        </div>
+        <img src="https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=800&auto=format&fit=crop" class="phone-img p-front" alt="iPhone Front">
+        
+        <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop" class="phone-img p-back" alt="iPhone Back">
       </div>
     </section>
   </div>
@@ -243,16 +152,6 @@
   <script src="global.js"></script>
   <script>
     setTimeout(() => { document.getElementById('intro').classList.add('finish'); }, 1500);
-    
-    // Live Clock for the iPhone Screen
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('live-clock').innerText = `${hours}:${minutes}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
   </script>
 </body>
 </html>
